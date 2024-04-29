@@ -38,7 +38,7 @@ old_gray = cv.cvtColor(old_frame, cv.COLOR_BGR2GRAY)
 p0 = cv.goodFeaturesToTrack(old_gray, mask = None, **feature_params)
 
 # Create a mask image for drawing purposes
-mask = np.zeros_like(old_frame)
+mask = np.zeros_like(old_gray)
 
 hsv = np.zeros_like(old_frame)
 hsv[..., 1] = 255
@@ -57,20 +57,26 @@ while(1):
 
 	# Select good points
 	if p1 is not None:
-		good_new = p1[st==1]
 		good_old = p0[st==1]
+		good_new = p1[st==1]
 
 	# Find homography matrix and do perspective transform
 	H, _ = cv.findHomography(good_old, good_new, cv.RANSAC, 5.0)
-	warped_old_gray = cv.warpPerspective(old_gray, H, (old_gray.shape[1], old_gray.shape[0]))
+	warped_old_gray = cv.warpPerspective(old_gray, H, (frame_gray.shape[1], frame_gray.shape[0]))
+	
+	# If there are any black pixels in the warped image, replace them with the corresponding pixels in the new frame
+	for i in range(warped_old_gray.shape[0]):
+		for j in range(warped_old_gray.shape[1]):
+			if warped_old_gray[i, j] == 0:
+				warped_old_gray[i, j] = frame_gray[i, j]
 
-	# # draw the tracks
-	# for i, (new, old) in enumerate(zip(good_new, good_old)):
-	# 	a, b = new.ravel()
-	# 	c, d = old.ravel()
-	# 	mask = cv.line(mask, (int(a), int(b)), (int(c), int(d)), color[i].tolist(), 2)
-	# 	warped_frame = cv.circle(warped_frame, (int(a), int(b)), 5, color[i].tolist(), -1)
-	# img = cv.add(warped_frame, mask)
+	# draw the tracks
+	for i, (new, old) in enumerate(zip(good_new, good_old)):
+		a, b = new.ravel()
+		c, d = old.ravel()
+		mask = cv.line(mask, (int(a), int(b)), (int(c), int(d)), color[i].tolist(), 2)
+		warped_old_gray = cv.circle(warped_old_gray, (int(a), int(b)), 5, color[i].tolist(), -1)
+	warped_old_gray = cv.add(warped_old_gray, mask)
 
 	# Calculate dense optical flow
 	flow = cv.calcOpticalFlowFarneback(warped_old_gray, frame_gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
@@ -94,7 +100,7 @@ while(1):
 	# Now update the previous frame and previous points
 	old_frame = frame.copy()
 	old_gray = frame_gray.copy()
-	mask = np.zeros_like(old_frame)
+	mask = np.zeros_like(old_gray)
 	p0 = good_new.reshape(-1, 1, 2)
 
 cv.destroyAllWindows()
