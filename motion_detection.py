@@ -12,6 +12,8 @@ parser.add_argument('images', type=str, help='path to image files', default="\\d
 args = parser.parse_args()
 
 cap = cv.VideoCapture(f"{args.images}\\%5d.jpg")
+detector = cv.SIFT_create(700)
+bf = cv.BFMatcher()
 
 # params for ShiTomasi corner detection
 feature_params = dict(
@@ -33,9 +35,11 @@ color = np.random.randint(0, 255, (100, 3))
 
 # Take first frame and find corners in it
 ret, old_frame = cap.read()
-old_frame = imutils.resize(old_frame, width=600)
+old_frame = imutils.resize(old_frame, width=400)
 old_gray = cv.cvtColor(old_frame, cv.COLOR_BGR2GRAY)
-p0 = cv.goodFeaturesToTrack(old_gray, mask = None, **feature_params)
+# p0 = cv.goodFeaturesToTrack(old_gray, mask = None, **feature_params)
+kp1, des1 = detector.detectAndCompute(old_gray, None)
+H_old = np.eye(3)
 
 # Create a mask image for drawing purposes
 mask = np.zeros_like(old_gray)
@@ -49,19 +53,27 @@ while(1):
 		print('No frames grabbed!')
 		break
 
-	frame = imutils.resize(frame, width=600)
+	frame = imutils.resize(frame, width=400)
 	frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
-	# calculate optical flow
-	p1, st, err = cv.calcOpticalFlowPyrLK(old_gray, frame_gray, p0, None, **lk_params)
+	kp2, des2 = detector.detectAndCompute(frame_gray, None)
+	pair_matches = bf.knnMatch(des2, des1, k=2)
+	matches = []
+	for m, n in pair_matches:
+		if m.distance < 0.7*n.distance:
+			matches.append(m)
+	matches = sorted(matches, key=lambda x: x.distance)
+	matches = matches[:min(len(matches), 20)]
 
-	# Select good points
-	if p1 is not None:
-		good_old = p0[st==1]
-		good_new = p1[st==1]
+	if len(matches) < 4:
+		print('Not enough matches found!')
+		continue
 
 	# Find homography matrix and do perspective transform
-	H, _ = cv.findHomography(good_old, good_new, cv.RANSAC, 5.0)
+	src_pts = np.float32([kp1[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
+	dst_pts = np.float32([kp2[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
+	H, _ = cv.findHomography(src_pts, dst_pts, cv.RANSAC, 5.0)
+	H = np.matmul(H_old, H)
 	warped_old_gray = cv.warpPerspective(old_gray, H, (frame_gray.shape[1], frame_gray.shape[0]))
 	
 	# If there are any black pixels in the warped image, replace them with the corresponding pixels in the new frame
@@ -71,12 +83,7 @@ while(1):
 				warped_old_gray[i, j] = frame_gray[i, j]
 
 	# draw the tracks
-	for i, (new, old) in enumerate(zip(good_new, good_old)):
-		a, b = new.ravel()
-		c, d = old.ravel()
-		mask = cv.line(mask, (int(a), int(b)), (int(c), int(d)), color[i].tolist(), 2)
-		warped_old_gray = cv.circle(warped_old_gray, (int(a), int(b)), 5, color[i].tolist(), -1)
-	warped_old_gray = cv.add(warped_old_gray, mask)
+	matches_img = cv.drawMatches(frame, kp2, old_frame, kp1, matches, None, flags=cv.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
 
 	# Calculate dense optical flow
 	flow = cv.calcOpticalFlowFarneback(warped_old_gray, frame_gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
@@ -90,7 +97,8 @@ while(1):
 		'frame',
 		np.vstack((
 			np.hstack((cv.cvtColor(warped_old_gray, cv.COLOR_GRAY2BGR), frame)), 
-			np.hstack((old_frame, cv.add(old_frame, bgr)))
+			np.hstack((old_frame, cv.add(old_frame, bgr))),
+			matches_img,
 		))
 	)
 	k = cv.waitKey(0)
@@ -101,6 +109,7 @@ while(1):
 	old_frame = frame.copy()
 	old_gray = frame_gray.copy()
 	mask = np.zeros_like(old_gray)
-	p0 = good_new.reshape(-1, 1, 2)
+	kp1 = kp2
+	des1 = des2
 
 cv.destroyAllWindows()
