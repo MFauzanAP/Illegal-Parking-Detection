@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import cv2 as cv
 import argparse
@@ -11,7 +12,11 @@ parser = argparse.ArgumentParser(
 parser.add_argument('images', type=str, help='path to image files', default="\\data")
 args = parser.parse_args()
 
-cap = cv.VideoCapture(f"{args.images}\\%5d.jpg")
+# Create output directory
+if not os.path.exists(f'.\\output\\{args.images}'):
+	os.makedirs(f'.\\output\\{args.images}')
+
+cap = cv.VideoCapture(f".\\data\\{args.images}\\%5d.jpg")
 detector = cv.SIFT_create(700)
 bf = cv.BFMatcher()
 
@@ -39,7 +44,6 @@ old_frame = imutils.resize(old_frame, width=400)
 old_gray = cv.cvtColor(old_frame, cv.COLOR_BGR2GRAY)
 # p0 = cv.goodFeaturesToTrack(old_gray, mask = None, **feature_params)
 kp1, des1 = detector.detectAndCompute(old_gray, None)
-H_old = np.eye(3)
 
 # Create a mask image for drawing purposes
 mask = np.zeros_like(old_gray)
@@ -47,7 +51,9 @@ mask = np.zeros_like(old_gray)
 hsv = np.zeros_like(old_frame)
 hsv[..., 1] = 255
 
+img_index = 0
 while(1):
+	img_index += 1
 	ret, frame = cap.read()
 	if not ret:
 		print('No frames grabbed!')
@@ -72,14 +78,13 @@ while(1):
 	# Find homography matrix and do perspective transform
 	src_pts = np.float32([kp1[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
 	dst_pts = np.float32([kp2[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
-	H, _ = cv.findHomography(src_pts, dst_pts, cv.RANSAC, 5.0)
-	H = np.matmul(H_old, H)
+	H, _ = cv.findHomography(src_pts, dst_pts, cv.RANSAC, 10.0)
 	warped_old_gray = cv.warpPerspective(old_gray, H, (frame_gray.shape[1], frame_gray.shape[0]))
 	
 	# If there are any black pixels in the warped image, replace them with the corresponding pixels in the new frame
 	for i in range(warped_old_gray.shape[0]):
 		for j in range(warped_old_gray.shape[1]):
-			if warped_old_gray[i, j] == 0:
+			if warped_old_gray[i, j] <= 0:
 				warped_old_gray[i, j] = frame_gray[i, j]
 
 	# draw the tracks
@@ -92,11 +97,16 @@ while(1):
 	hsv[..., 2] = cv.normalize(mag, None, 0, 255, cv.NORM_MINMAX)
 	bgr = cv.cvtColor(hsv, cv.COLOR_HSV2BGR)
 
+	# Save images
+	cv.imwrite(f'.\\output\\{args.images}\\{"{:03d}".format(img_index - 1)}_warped_old.jpg', warped_old_gray)
+	cv.imwrite(f'.\\output\\{args.images}\\{"{:03d}".format(img_index - 1)}_frame.jpg', frame_gray)
+	cv.imwrite(f'.\\output\\{args.images}\\{"{:03d}".format(img_index - 1)}_flow.jpg', bgr)
+
 	# Show images side by side
 	cv.imshow(
 		'frame',
 		np.vstack((
-			np.hstack((cv.cvtColor(warped_old_gray, cv.COLOR_GRAY2BGR), frame)), 
+			np.hstack((cv.cvtColor(warped_old_gray, cv.COLOR_GRAY2BGR), cv.cvtColor(frame_gray, cv.COLOR_GRAY2BGR))), 
 			np.hstack((old_frame, cv.add(old_frame, bgr))),
 			matches_img,
 		))
