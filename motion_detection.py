@@ -3,11 +3,18 @@ import numpy as np
 import cv2 as cv
 import argparse
 import imutils
+from defisheye import Defisheye
 
-RESIZED_WIDTH = 400
-NUM_MATCHES = 1000
-REPROJECT_THRESHOLD = 1
+RESIZED_WIDTH = 1000
+RESIZED_WIDTH_VIEWING = 300
+NUM_MATCHES = 10000
+REPROJECT_THRESHOLD = 2.0
 DISPLAY_FLOW = "dense"
+
+dtype = 'stereographic'
+format = 'fullframe'
+fov = 11
+pfov = 10
 
 parser = argparse.ArgumentParser(
     description='This sample demonstrates Lucas-Kanade Optical Flow calculation. \
@@ -52,26 +59,11 @@ color = np.random.randint(0, 255, (100, 3))
 
 # Take first frame and find corners in it
 ret, old_frame = cap.read()
+old_frame = Defisheye(old_frame, dtype=dtype, format=format, fov=fov, pfov=pfov)._image
 old_frame = imutils.resize(old_frame, width=RESIZED_WIDTH)
 old_gray = cv.cvtColor(old_frame, cv.COLOR_BGR2GRAY)
 # p0 = cv.goodFeaturesToTrack(old_gray, mask = None, **feature_params)
 kp1, des1 = detector.detectAndCompute(old_gray, None)
-
-# Calibrate camera for first frame
-chessboard_ret, old_corners = cv.findChessboardCorners(old_gray, (7,6), None)
-if chessboard_ret == True:
-	objpoints.append(objp)
-	imgpoints.append(old_corners)
-	ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, old_gray.shape[::-1], None, None)
-
-	# Create camera matrix from first frame
-	h, w = old_frame.shape[:2]
-	newcameramtx, roi=cv.getOptimalNewCameraMatrix(mtx, dist, (w,h), 1, (w,h))
-
-	# Undistort and crop image
-	dst = cv.undistort(old_frame, mtx, dist, None, newcameramtx)
-	x, y, w, h = roi
-	old_frame = dst[y:y+h, x:x+w]
 
 # Create a mask image for drawing purposes
 mask = np.zeros_like(old_gray)
@@ -88,20 +80,9 @@ while(1):
 		print('No frames grabbed!')
 		break
 
+	frame = Defisheye(frame, dtype=dtype, format=format, fov=fov, pfov=pfov)._image
 	frame = imutils.resize(frame, width=RESIZED_WIDTH)
 	frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-
-	# Detect chessboard corners
-	chessboard_ret, corners = cv.findChessboardCorners(frame_gray, (7,6), None)
-	if chessboard_ret == True:
-		objpoints.append(objp)
-		imgpoints.append(corners)
-		ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, old_gray.shape[::-1], None, None)
-
-		# Undistort and crop image
-		dst = cv.undistort(frame, mtx, dist, None, newcameramtx)
-		x, y, w, h = roi
-		frame = dst[y:y+h, x:x+w]
 
 	kp2, des2 = detector.detectAndCompute(frame_gray, None)
 	pair_matches = bf.knnMatch(des2, des1, k=2)
@@ -135,9 +116,6 @@ while(1):
 	hsv[..., 2] = cv.normalize(mag, None, 0, 255, cv.NORM_MINMAX)
 	dense_frame = cv.cvtColor(hsv, cv.COLOR_HSV2BGR)
 
-	# draw the tracks
-	matches_img = cv.drawMatches(frame, kp2, old_frame, kp1, matches, None, flags=cv.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-
 	# Calculate sparse optical flow
 	p0 = cv.goodFeaturesToTrack(warped_old_gray, mask = None, **feature_params)
 	p1, st, err = cv.calcOpticalFlowPyrLK(warped_old_gray, frame_gray, p0, None, **lk_params)
@@ -159,12 +137,22 @@ while(1):
 	cv.imwrite(f'.\\output\\{args.images}\\{"{:03d}".format(img_index - 1)}_frame.jpg', frame_gray)
 	cv.imwrite(f'.\\output\\{args.images}\\{"{:03d}".format(img_index - 1)}_flow.jpg', flow_frame)
 
+	# Resize images for viewing
+	resized_warped_old = imutils.resize(warped_old_gray, width=RESIZED_WIDTH_VIEWING)
+	resized_frame_gray = imutils.resize(frame_gray, width=RESIZED_WIDTH_VIEWING)
+	resized_frame = imutils.resize(frame, width=RESIZED_WIDTH_VIEWING)
+	resized_old = imutils.resize(old_frame, width=RESIZED_WIDTH_VIEWING)
+	resized_flow = imutils.resize(flow_frame, width=RESIZED_WIDTH_VIEWING)
+
+	# Draw the tracks
+	matches_img = cv.drawMatches(resized_frame, kp2, resized_old, kp1, matches, None, flags=cv.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+
 	# Show images side by side
 	cv.imshow(
 		'frame',
 		np.vstack((
-			np.hstack((cv.cvtColor(warped_old_gray, cv.COLOR_GRAY2BGR), cv.cvtColor(frame_gray, cv.COLOR_GRAY2BGR))), 
-			np.hstack((old_frame, flow_frame)),
+			np.hstack((cv.cvtColor(resized_warped_old, cv.COLOR_GRAY2BGR), cv.cvtColor(resized_frame_gray, cv.COLOR_GRAY2BGR))), 
+			np.hstack((resized_old, resized_flow)),
 			matches_img,
 		))
 	)
