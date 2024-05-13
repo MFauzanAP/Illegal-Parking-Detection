@@ -9,6 +9,8 @@ RESIZED_WIDTH = 1000
 RESIZED_WIDTH_VIEWING = 300
 REPROJECT_THRESHOLD = 0.2
 DISPLAY_FLOW = "dense"
+FLOW_NORMALIZATION = "none" # "none", "min", "max"
+FLOW_THRESHOLD = 50
 
 dtype = 'stereographic'
 format = 'fullframe'
@@ -112,7 +114,15 @@ while(1):
 	flow = cv.DISOpticalFlow_create(cv.DISOPTICAL_FLOW_PRESET_MEDIUM).calc(warped_old_gray, frame_gray, None)
 	mag, ang = cv.cartToPolar(flow[..., 0], flow[..., 1])
 	hsv[..., 0] = ang*180/np.pi/2
-	hsv[..., 2] = cv.normalize(mag, None, 0, 255, cv.NORM_MINMAX)
+	if FLOW_NORMALIZATION != "none":
+		for i in range(mag.shape[0]):
+			for j in range(mag.shape[1]):
+				if FLOW_NORMALIZATION == "min" and mag[i, j] < FLOW_THRESHOLD:
+					mag[i, j] = 0
+				elif FLOW_NORMALIZATION == "max" and mag[i, j] > FLOW_THRESHOLD:
+					mag[i, j] = 0
+		hsv[..., 2] = cv.normalize(mag, None, 0, 255, cv.NORM_MINMAX)
+	else: hsv[..., 2] = mag
 	dense_frame = cv.cvtColor(hsv, cv.COLOR_HSV2BGR)
 
 	# Calculate sparse optical flow
