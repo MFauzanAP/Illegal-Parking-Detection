@@ -7,8 +7,7 @@ from defisheye import Defisheye
 
 RESIZED_WIDTH = 1000
 RESIZED_WIDTH_VIEWING = 300
-NUM_MATCHES = 10000
-REPROJECT_THRESHOLD = 2.0
+REPROJECT_THRESHOLD = 0.2
 DISPLAY_FLOW = "dense"
 
 dtype = 'stereographic'
@@ -91,7 +90,6 @@ while(1):
 		if m.distance < 0.7*n.distance:
 			matches.append(m)
 	matches = sorted(matches, key=lambda x: x.distance)
-	matches = matches[:min(len(matches), NUM_MATCHES)]
 
 	if len(matches) < 4:
 		print('Not enough matches found!')
@@ -100,7 +98,7 @@ while(1):
 	# Find homography matrix and do perspective transform
 	src_pts = np.float32([kp1[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
 	dst_pts = np.float32([kp2[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
-	H, _ = cv.findHomography(src_pts, dst_pts, cv.RANSAC, REPROJECT_THRESHOLD)
+	H, _ = cv.findHomography(src_pts, dst_pts, method=cv.FM_LMEDS, ransacReprojThreshold=REPROJECT_THRESHOLD, confidence=0.99)
 	warped_old_gray = cv.warpPerspective(old_gray, H, (frame_gray.shape[1], frame_gray.shape[0]))
 
 	# If there are any black pixels in the warped image, replace them with the corresponding pixels in the new frame
