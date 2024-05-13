@@ -110,7 +110,8 @@ while(1):
 				warped_old_gray[i, j] = frame_gray[i, j]
 
 	# Calculate dense optical flow
-	flow = cv.calcOpticalFlowFarneback(warped_old_gray, frame_gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+	# flow = cv.calcOpticalFlowFarneback(warped_old_gray, frame_gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+	flow = cv.DISOpticalFlow_create(cv.DISOPTICAL_FLOW_PRESET_MEDIUM).calc(warped_old_gray, frame_gray, None)
 	mag, ang = cv.cartToPolar(flow[..., 0], flow[..., 1])
 	hsv[..., 0] = ang*180/np.pi/2
 	hsv[..., 2] = cv.normalize(mag, None, 0, 255, cv.NORM_MINMAX)
