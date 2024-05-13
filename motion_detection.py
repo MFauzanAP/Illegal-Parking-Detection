@@ -5,8 +5,8 @@ import argparse
 import imutils
 
 RESIZED_WIDTH = 400
-NUM_MATCHES = 20
-REPROJECT_THRESHOLD = 2.0
+NUM_MATCHES = 1000
+REPROJECT_THRESHOLD = 1
 DISPLAY_FLOW = "dense"
 
 parser = argparse.ArgumentParser(
@@ -24,6 +24,13 @@ if not os.path.exists(f'.\\output\\{args.images}'):
 cap = cv.VideoCapture(f".\\data\\{args.images}\\%5d.jpg")
 detector = cv.SIFT_create(700)
 bf = cv.BFMatcher()
+
+# Params for removing distortion
+criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+objp = np.zeros((6*7,3), np.float32)
+objp[:,:2] = np.mgrid[0:7,0:6].T.reshape(-1,2)
+objpoints = [] # 3d point in real world space
+imgpoints = [] # 2d points in image plane.
 
 # params for ShiTomasi corner detection
 feature_params = dict(
@@ -50,6 +57,22 @@ old_gray = cv.cvtColor(old_frame, cv.COLOR_BGR2GRAY)
 # p0 = cv.goodFeaturesToTrack(old_gray, mask = None, **feature_params)
 kp1, des1 = detector.detectAndCompute(old_gray, None)
 
+# Calibrate camera for first frame
+chessboard_ret, old_corners = cv.findChessboardCorners(old_gray, (7,6), None)
+if chessboard_ret == True:
+	objpoints.append(objp)
+	imgpoints.append(old_corners)
+	ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, old_gray.shape[::-1], None, None)
+
+	# Create camera matrix from first frame
+	h, w = old_frame.shape[:2]
+	newcameramtx, roi=cv.getOptimalNewCameraMatrix(mtx, dist, (w,h), 1, (w,h))
+
+	# Undistort and crop image
+	dst = cv.undistort(old_frame, mtx, dist, None, newcameramtx)
+	x, y, w, h = roi
+	old_frame = dst[y:y+h, x:x+w]
+
 # Create a mask image for drawing purposes
 mask = np.zeros_like(old_gray)
 mask_sparse = np.zeros_like(old_frame)
@@ -67,6 +90,18 @@ while(1):
 
 	frame = imutils.resize(frame, width=RESIZED_WIDTH)
 	frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+
+	# Detect chessboard corners
+	chessboard_ret, corners = cv.findChessboardCorners(frame_gray, (7,6), None)
+	if chessboard_ret == True:
+		objpoints.append(objp)
+		imgpoints.append(corners)
+		ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, old_gray.shape[::-1], None, None)
+
+		# Undistort and crop image
+		dst = cv.undistort(frame, mtx, dist, None, newcameramtx)
+		x, y, w, h = roi
+		frame = dst[y:y+h, x:x+w]
 
 	kp2, des2 = detector.detectAndCompute(frame_gray, None)
 	pair_matches = bf.knnMatch(des2, des1, k=2)
@@ -145,5 +180,7 @@ while(1):
 	kp1 = kp2
 	des1 = des2
 	p0 = good_new.reshape(-1, 1, 2)
+	objpoints = []
+	imgpoints = []
 
 cv.destroyAllWindows()
