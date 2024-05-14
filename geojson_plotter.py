@@ -2,11 +2,9 @@ import os
 import re
 import subprocess
 import numpy as np
-import cv2 as cv
 import argparse
 import cameratransform as ct
 
-from lat_lon_parser import parse
 from geojson import Polygon, dumps
 
 parser = argparse.ArgumentParser(
@@ -42,16 +40,19 @@ while(1):
 	# for k,v in info_dict.items(): print(k,':', v)
 
 	# Get the camera data
-	f = float(re.sub('[^0-9.-]', '', info_dict['Focal Length']))
+	f = float(re.sub('[^0-9.-]', '', info_dict['Lens Info'][:6]))
 	sx = 6.4		# https://sdk-forum.dji.net/hc/en-us/articles/12325496609689-What-is-the-custom-camera-parameters-for-Mavic-3-Enterprise-series-and-Mavic-3M
 	sy = 4.8
 	ix = int(info_dict['Image Width'])
 	iy = int(info_dict['Image Height'])
+	# print("Focal Length:", f, "Sensor Width:", sx, "Sensor Height:", sy, "Image Width:", ix, "Image Height:", iy)
 
 	# Get the GPS data
-	lat = parse(info_dict['GPS Latitude'])
-	lon = parse(info_dict['GPS Longitude'])
-	alt = float(re.sub('[^0-9.-]', '', info_dict['GPS Altitude']))
+	gps = info_dict['GPS Position'].replace(' deg', '°')
+	lat, lon = ct.gpsFromString(gps)
+	# lat = parse(info_dict['GPS Latitude'])
+	# lon = parse(info_dict['GPS Longitude'])
+	alt = float(re.sub('[^0-9.-]', '', info_dict['Relative Altitude']))
 	# print("Latitude:", lat, "Longitude:", lon, "Altitude:", alt)
 
 	# Get the orientation data
@@ -67,13 +68,13 @@ while(1):
 	# Initialize the camera transform object
 	cam = ct.Camera(
 		ct.RectilinearProjection(focallength_mm=f, sensor=(sx, sy), image=(ix, iy)),
-		ct.SpatialOrientation(elevation_m=alt, tilt_deg=gimbal_pitch, roll_deg=drone_roll+gimbal_roll, heading_deg=gimbal_yaw)
+		ct.SpatialOrientation(elevation_m=alt, tilt_deg=gimbal_pitch, roll_deg=gimbal_roll, heading_deg=gimbal_yaw)
 	)
-	cam.setGPSpos(lat, lon, alt)
+	cam.setGPSpos(lat, lon)
 
 	# Get the coordinates of the image corners
 	coords = np.array([cam.gpsFromImage([0, 0]), cam.gpsFromImage([ix-1, 0]), cam.gpsFromImage([ix-1, iy-1]), cam.gpsFromImage([0, iy-1])])
-	# coords = cam.imageFromGPS(np.array([25.384456, 51.489702, 0]))
+	# print(cam.imageFromGPS(np.array([25.38473001, 51.48971969])))
 	# print(coords)
 
 	# Create a GeoJSON polygon to represent the image corners
