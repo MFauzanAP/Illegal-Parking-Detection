@@ -4,11 +4,13 @@ import subprocess
 import cv2 as cv
 import numpy as np
 import argparse
+import imutils
 import cameratransform as ct
 
 from geojson import Polygon, dumps, loads
 
 PARKING_TRANSPARENCY = 0.25
+RESIZED_WIDTH = 1000
 
 parser = argparse.ArgumentParser(
 	description='This sample demonstrates Lucas-Kanade Optical Flow calculation. \
@@ -40,6 +42,7 @@ while(1):
 
 	# Read the image
 	img = cv.imread(f"{cwd}\\data\\{args.images}\\{"{:05d}".format(img_index)}.jpg")
+	img = imutils.resize(img, width=RESIZED_WIDTH)
 
 	# Create process to use ExifTool
 	process = subprocess.Popen(['exiftool', f"{cwd}\\data\\{args.images}\\{"{:05d}".format(img_index)}.jpg"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
@@ -55,8 +58,8 @@ while(1):
 	f = float(re.sub('[^0-9.-]', '', info_dict['Lens Info'][:6]))
 	sx = 6.4		# https://sdk-forum.dji.net/hc/en-us/articles/12325496609689-What-is-the-custom-camera-parameters-for-Mavic-3-Enterprise-series-and-Mavic-3M
 	sy = 4.8
-	ix = int(info_dict['Image Width'])
-	iy = int(info_dict['Image Height'])
+	ix = RESIZED_WIDTH
+	iy = int(info_dict['Image Height']) * ix // int(info_dict['Image Width'])
 	# print("Focal Length:", f, "Sensor Width:", sx, "Sensor Height:", sy, "Image Width:", ix, "Image Height:", iy)
 
 	# Get the GPS data
