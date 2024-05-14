@@ -6,7 +6,6 @@ import imutils
 from defisheye import Defisheye
 
 # TODO:
-# - Save stacked images to a dedicated folder
 # - Display geojson data on the images
 
 COMPUTATION_MODE = "full" # "full", "one-by-one"
@@ -17,6 +16,7 @@ DISPLAY_FLOW = "dense"
 FLOW_NORMALIZATION = "none" # "none", "min", "max"
 FLOW_THRESHOLD = 50
 
+REMOVE_DISTORTION = True
 dtype = 'stereographic'
 format = 'fullframe'
 fov = 11
@@ -66,7 +66,7 @@ color = np.random.randint(0, 255, (100, 3))
 
 # Take first frame and find corners in it
 ret, old_frame = cap.read()
-old_frame = Defisheye(old_frame, dtype=dtype, format=format, fov=fov, pfov=pfov)._image
+if REMOVE_DISTORTION: old_frame = Defisheye(old_frame, dtype=dtype, format=format, fov=fov, pfov=pfov)._image
 old_frame = imutils.resize(old_frame, width=RESIZED_WIDTH)
 old_gray = cv.cvtColor(old_frame, cv.COLOR_BGR2GRAY)
 # p0 = cv.goodFeaturesToTrack(old_gray, mask = None, **feature_params)
@@ -87,7 +87,7 @@ while(1):
 		print('No frames grabbed!')
 		break
 
-	frame = Defisheye(frame, dtype=dtype, format=format, fov=fov, pfov=pfov)._image
+	if REMOVE_DISTORTION: frame = Defisheye(frame, dtype=dtype, format=format, fov=fov, pfov=pfov)._image
 	frame = imutils.resize(frame, width=RESIZED_WIDTH)
 	frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
