@@ -5,8 +5,13 @@ import argparse
 import imutils
 from defisheye import Defisheye
 
+# TODO:
+# - Save stacked images to a dedicated folder
+# - Display geojson data on the images
+
+COMPUTATION_MODE = "full" # "full", "one-by-one"
 RESIZED_WIDTH = 1000
-RESIZED_WIDTH_VIEWING = 300
+RESIZED_WIDTH_VIEWING = 450
 REPROJECT_THRESHOLD = 0.2
 DISPLAY_FLOW = "dense"
 FLOW_NORMALIZATION = "none" # "none", "min", "max"
@@ -26,12 +31,13 @@ parser.add_argument('images', type=str, help='path to image files', default="\\d
 args = parser.parse_args()
 
 # Create output directory
-if not os.path.exists(f'.\\output\\{args.images}'):
-	os.makedirs(f'.\\output\\{args.images}')
+if not os.path.exists(f'.\\output\\{args.images}'): os.makedirs(f'.\\output\\{args.images}')
+if not os.path.exists(f'.\\combined-output\\{args.images}'): os.makedirs(f'.\\combined-output\\{args.images}')
 
 cap = cv.VideoCapture(f".\\data\\{args.images}\\%5d.jpg")
 detector = cv.SIFT_create(700)
 bf = cv.BFMatcher()
+num_frames = int(cap.get(cv.CAP_PROP_FRAME_COUNT)) - 1
 
 # Params for removing distortion
 criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
@@ -138,36 +144,36 @@ while(1):
 		mask_sparse = cv.line(mask_sparse, (int(a), int(b)), (int(c), int(d)), color[i].tolist(), 2)
 		sparse_frame = cv.circle(np.zeros_like(frame), (int(a), int(b)), 5, color[i].tolist(), -1)
 
-	# Save images
+	# Pick which flow to display
 	if DISPLAY_FLOW == "dense": flow_frame = cv.add(frame, dense_frame)
 	elif DISPLAY_FLOW == "sparse": flow_frame = cv.add(frame, sparse_frame)
 	else: flow_frame = cv.add(frame, cv.add(dense_frame, sparse_frame))
+
+	# Draw the tracks
+	matches_img = cv.drawMatches(frame, kp2, old_frame, kp1, matches, None, flags=cv.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+
+	# Place images side by side
+	output_img = np.vstack((
+		np.hstack((old_frame, cv.cvtColor(warped_old_gray, cv.COLOR_GRAY2BGR), cv.cvtColor(frame_gray, cv.COLOR_GRAY2BGR))),
+		np.hstack((matches_img, flow_frame))
+	))
+
+	# Save images
 	cv.imwrite(f'.\\output\\{args.images}\\{"{:03d}".format(img_index - 1)}_warped_old.jpg', warped_old_gray)
 	cv.imwrite(f'.\\output\\{args.images}\\{"{:03d}".format(img_index - 1)}_frame.jpg', frame_gray)
 	cv.imwrite(f'.\\output\\{args.images}\\{"{:03d}".format(img_index - 1)}_flow.jpg', flow_frame)
+	cv.imwrite(f'.\\combined-output\\{args.images}\\{"{:03d}".format(img_index - 1)}.jpg', output_img)
 
 	# Resize images for viewing
-	resized_warped_old = imutils.resize(warped_old_gray, width=RESIZED_WIDTH_VIEWING)
-	resized_frame_gray = imutils.resize(frame_gray, width=RESIZED_WIDTH_VIEWING)
-	resized_frame = imutils.resize(frame, width=RESIZED_WIDTH_VIEWING)
-	resized_old = imutils.resize(old_frame, width=RESIZED_WIDTH_VIEWING)
-	resized_flow = imutils.resize(flow_frame, width=RESIZED_WIDTH_VIEWING)
-
-	# Draw the tracks
-	matches_img = cv.drawMatches(resized_frame, kp2, resized_old, kp1, matches, None, flags=cv.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+	resized_output_img = imutils.resize(output_img, width=RESIZED_WIDTH_VIEWING*3)
 
 	# Show images side by side
-	cv.imshow(
-		'frame',
-		np.vstack((
-			np.hstack((cv.cvtColor(resized_warped_old, cv.COLOR_GRAY2BGR), cv.cvtColor(resized_frame_gray, cv.COLOR_GRAY2BGR))), 
-			np.hstack((resized_old, resized_flow)),
-			matches_img,
-		))
-	)
-	k = cv.waitKey(0)
-	if k == 27:
-		break
+	print(f'Frame {img_index}/{num_frames} processed ({round(img_index / num_frames * 100, 2)}%)...')
+	if COMPUTATION_MODE == "one-by-one":
+		cv.imshow('frame', resized_output_img)
+		k = cv.waitKey(0)
+		if k == 27:
+			break
 
 	# Now update the previous frame and previous points
 	old_frame = frame.copy()
