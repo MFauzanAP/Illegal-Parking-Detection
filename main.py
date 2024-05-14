@@ -15,7 +15,8 @@ OUTPUT_FLOW = True
 OUTPUT_CAMERA = True
 OUTPUT_PARKING = True
 
-REMOVE_DISTORTION = True
+# Has issues with plotting the camera, parking, and flow data, and also crops part of the image
+REMOVE_DISTORTION = False
 D_TYPE = 'stereographic'
 D_FORMAT = 'fullframe'
 D_FOV = 11
