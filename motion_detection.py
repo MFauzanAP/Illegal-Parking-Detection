@@ -31,8 +31,8 @@ parser.add_argument('images', type=str, help='path to image files', default="\\d
 args = parser.parse_args()
 
 # Create output directory
-if not os.path.exists(f'.\\output\\{args.images}'): os.makedirs(f'.\\output\\{args.images}')
-if not os.path.exists(f'.\\combined-output\\{args.images}'): os.makedirs(f'.\\combined-output\\{args.images}')
+if not os.path.exists(f'.\\output\\individual\\{args.images}'): os.makedirs(f'.\\output\\individual\\{args.images}')
+if not os.path.exists(f'.\\output\\combined\\{args.images}'): os.makedirs(f'.\\output\\combined\\{args.images}')
 
 cap = cv.VideoCapture(f".\\data\\{args.images}\\%5d.jpg")
 detector = cv.SIFT_create(700)
@@ -115,39 +115,39 @@ while(1):
 			if warped_old_gray[i, j] <= 0:
 				warped_old_gray[i, j] = frame_gray[i, j]
 
-	# Calculate dense optical flow
-	# flow = cv.calcOpticalFlowFarneback(warped_old_gray, frame_gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
-	flow = cv.DISOpticalFlow_create(cv.DISOPTICAL_FLOW_PRESET_MEDIUM).calc(warped_old_gray, frame_gray, None)
-	mag, ang = cv.cartToPolar(flow[..., 0], flow[..., 1])
-	hsv[..., 0] = ang*180/np.pi/2
-	if FLOW_NORMALIZATION != "none":
-		for i in range(mag.shape[0]):
-			for j in range(mag.shape[1]):
-				if FLOW_NORMALIZATION == "min" and mag[i, j] < FLOW_THRESHOLD:
-					mag[i, j] = 0
-				elif FLOW_NORMALIZATION == "max" and mag[i, j] > FLOW_THRESHOLD:
-					mag[i, j] = 0
-		hsv[..., 2] = cv.normalize(mag, None, 0, 255, cv.NORM_MINMAX)
-	else: hsv[..., 2] = mag
-	dense_frame = cv.cvtColor(hsv, cv.COLOR_HSV2BGR)
-
-	# Calculate sparse optical flow
-	p0 = cv.goodFeaturesToTrack(warped_old_gray, mask = None, **feature_params)
-	p1, st, err = cv.calcOpticalFlowPyrLK(warped_old_gray, frame_gray, p0, None, **lk_params)
-	if p1 is not None:
-		good_old = p0[st==1]
-		good_new = p1[st==1]
-
-	for i, (new, old) in enumerate(zip(good_new, good_old)):
-		a, b = new.ravel()
-		c, d = old.ravel()
-		mask_sparse = cv.line(mask_sparse, (int(a), int(b)), (int(c), int(d)), color[i].tolist(), 2)
-		sparse_frame = cv.circle(np.zeros_like(frame), (int(a), int(b)), 5, color[i].tolist(), -1)
-
 	# Pick which flow to display
-	if DISPLAY_FLOW == "dense": flow_frame = cv.add(frame, dense_frame)
-	elif DISPLAY_FLOW == "sparse": flow_frame = cv.add(frame, sparse_frame)
-	else: flow_frame = cv.add(frame, cv.add(dense_frame, sparse_frame))
+	flow_frame = None
+	if DISPLAY_FLOW == "dense":
+		# Calculate dense optical flow
+		# flow = cv.calcOpticalFlowFarneback(warped_old_gray, frame_gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+		flow = cv.DISOpticalFlow_create(cv.DISOPTICAL_FLOW_PRESET_MEDIUM).calc(warped_old_gray, frame_gray, None)
+		mag, ang = cv.cartToPolar(flow[..., 0], flow[..., 1])
+		hsv[..., 0] = ang*180/np.pi/2
+		if FLOW_NORMALIZATION != "none":
+			for i in range(mag.shape[0]):
+				for j in range(mag.shape[1]):
+					if FLOW_NORMALIZATION == "min" and mag[i, j] < FLOW_THRESHOLD:
+						mag[i, j] = 0
+					elif FLOW_NORMALIZATION == "max" and mag[i, j] > FLOW_THRESHOLD:
+						mag[i, j] = 0
+			hsv[..., 2] = cv.normalize(mag, None, 0, 255, cv.NORM_MINMAX)
+		else: hsv[..., 2] = mag
+		dense_frame = cv.cvtColor(hsv, cv.COLOR_HSV2BGR)
+		flow_frame = cv.add(frame, dense_frame)
+	elif DISPLAY_FLOW == "sparse":
+		# Calculate sparse optical flow
+		p0 = cv.goodFeaturesToTrack(warped_old_gray, mask = None, **feature_params)
+		p1, st, err = cv.calcOpticalFlowPyrLK(warped_old_gray, frame_gray, p0, None, **lk_params)
+		if p1 is not None:
+			good_old = p0[st==1]
+			good_new = p1[st==1]
+		for i, (new, old) in enumerate(zip(good_new, good_old)):
+			a, b = new.ravel()
+			c, d = old.ravel()
+			mask_sparse = cv.line(mask_sparse, (int(a), int(b)), (int(c), int(d)), color[i].tolist(), 2)
+			sparse_frame = cv.circle(np.zeros_like(frame), (int(a), int(b)), 5, color[i].tolist(), -1)
+		flow_frame = cv.add(frame, sparse_frame)
+		p0 = good_new.reshape(-1, 1, 2)
 
 	# Draw the tracks
 	matches_img = cv.drawMatches(frame, kp2, old_frame, kp1, matches, None, flags=cv.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
@@ -159,10 +159,10 @@ while(1):
 	))
 
 	# Save images
-	cv.imwrite(f'.\\output\\{args.images}\\{"{:03d}".format(img_index - 1)}_warped_old.jpg', warped_old_gray)
-	cv.imwrite(f'.\\output\\{args.images}\\{"{:03d}".format(img_index - 1)}_frame.jpg', frame_gray)
-	cv.imwrite(f'.\\output\\{args.images}\\{"{:03d}".format(img_index - 1)}_flow.jpg', flow_frame)
-	cv.imwrite(f'.\\combined-output\\{args.images}\\{"{:03d}".format(img_index - 1)}.jpg', output_img)
+	cv.imwrite(f'.\\output\\individual\\{args.images}\\{"{:05d}".format(img_index - 1)}_warped_old.jpg', warped_old_gray)
+	cv.imwrite(f'.\\output\\individual\\{args.images}\\{"{:05d}".format(img_index - 1)}_frame.jpg', frame_gray)
+	cv.imwrite(f'.\\output\\individual\\{args.images}\\{"{:05d}".format(img_index - 1)}_flow.jpg', flow_frame)
+	cv.imwrite(f'.\\output\\combined\\{args.images}\\{"{:05d}".format(img_index - 1)}.jpg', output_img)
 
 	# Resize images for viewing
 	resized_output_img = imutils.resize(output_img, width=RESIZED_WIDTH_VIEWING*3)
@@ -182,7 +182,6 @@ while(1):
 	mask_sparse = np.zeros_like(old_frame)
 	kp1 = kp2
 	des1 = des2
-	p0 = good_new.reshape(-1, 1, 2)
 	objpoints = []
 	imgpoints = []
 
