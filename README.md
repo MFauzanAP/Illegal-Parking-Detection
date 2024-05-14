@@ -13,4 +13,4 @@ This project aims to develop a system for detecting illegal parking using drones
 1. Clone this repository: `git clone https://github.com/MFauzanAP/Illegal-Parking-Detection.git`
 2. Install the required dependencies: `pip install -r requirements.txt`
 3. Run the motion detection script: `python motion_detection.py "DATASET_PATH"`
-4. View the results in the `combined-output` directory (or `output` for individual images).
+4. View the results in the `output` directory
