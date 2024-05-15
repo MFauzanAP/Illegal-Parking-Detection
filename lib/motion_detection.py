@@ -99,22 +99,40 @@ class MotionDetection():
 		res = center[label.flatten()]
 		hsv = res.reshape((hsv.shape))
 
-		# Filter out any blobs that are too small or too large, and those that are too thin or wide
+		# Extract the contours from the flow image to clean it up and draw bounding boxes around the blobs
+		bboxes = []
 		gray = cv.cvtColor(hsv, cv.COLOR_BGR2GRAY)
 		_, thresh = cv.threshold(gray, 175, 255, 0)
 		contours, _ = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 		for contour in contours:
+
+			# Calculate the area, perimeter, and circularity of the contour
 			area = cv.contourArea(contour)
 			perimeter = cv.arcLength(contour, True)
 			circularity = (4 * np.pi * area) / (perimeter * perimeter) if perimeter > 0 else 0
+
+			# Filter out any blobs that are too small or too large, and those that are too thin or wide
 			exceeds_area = area < self.AREA_MIN_THRESHOLD or area > self.AREA_MAX_THRESHOLD
 			exceeds_circularity = circularity < self.CIRCULARITY_MIN_THRESHOLD or circularity > self.CIRCULARITY_MAX_THRESHOLD
 			if exceeds_area or exceeds_circularity:
 				cv.drawContours(hsv, [contour], -1, (0, 0, 0), -1)
+			else:
+				# Calculate the bounding box around the contour
+				rect = cv.minAreaRect(contour)
+				box = cv.boxPoints(rect)
+				box = np.int0(box)
+				bboxes.append(box)
 
 		# Convert the flow to BGR for later use
 		self.flow_img = cv.cvtColor(hsv, cv.COLOR_HSV2BGR)
 		cv.imwrite(f'.\\output\\{self.dataset}\\flow-only\\{"{:05d}".format(self.img_index)}.jpg', self.flow_img)
+
+		# Overlay the bounding boxes on the flow image
+		img_bbox = self.img.copy()
+		for bbox in bboxes:
+			cv.drawContours(img_bbox, [bbox], 0, (255, 0, 0), 4)
+		self.flow_bbox = img_bbox
+		cv.imwrite(f'.\\output\\{self.dataset}\\flow-bbox\\{"{:05d}".format(self.img_index)}.jpg', self.flow_bbox)
 
 		# Overlay the flow on the original image
 		self.combined_flow = cv.add(self.img, self.flow_img)

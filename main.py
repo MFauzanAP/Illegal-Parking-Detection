@@ -17,7 +17,7 @@ from lib.motion_detection import MotionDetection
 # - Analyze images in parallel
 
 RESIZED_WIDTH = 1000
-OUTPUT_DIRS = ['combined', 'flow', 'flow-only', 'camera', 'parking', 'parking-only']
+OUTPUT_DIRS = ['combined', 'flow', 'flow-only', 'flow-bbox', 'camera', 'parking', 'parking-only']
 OUTPUT_COMBINED = True
 OUTPUT_FLOW = True
 OUTPUT_CAMERA = True
