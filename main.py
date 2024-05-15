@@ -1,5 +1,4 @@
 import os
-import numpy as np
 import cv2 as cv
 import argparse
 import imutils
@@ -8,8 +7,17 @@ from defisheye import Defisheye
 from lib.geojson_plotter import GeoJsonPlotter
 from lib.motion_detection import MotionDetection
 
+# TODO:
+# - Detect cars in the current frame
+# - Filter out the cars that are moving or parked legally
+# - Save screenshot, time, and approximate coordinates of the cars that are parked illegally as data in a point cloud
+# - Find clusters of points in the point cloud that are close to each other and group them if they are the same car, do this by conducting image similarity analysis
+# - For each group of data points, calculate the time the car has been parked there and the approximate coordinates of the car
+# - If the cars have been parked there for more than a certain amount of time, flag them as illegally parked and save the data
+# - Analyze images in parallel
+
 RESIZED_WIDTH = 1000
-OUTPUT_DIRS = ['combined', 'flow', 'camera', 'parking']
+OUTPUT_DIRS = ['combined', 'flow', 'flow-only', 'camera', 'parking', 'parking-only']
 OUTPUT_COMBINED = True
 OUTPUT_FLOW = True
 OUTPUT_CAMERA = True
@@ -52,9 +60,9 @@ def main():
 		img = imutils.resize(img, width=RESIZED_WIDTH)
 		if REMOVE_DISTORTION: img = Defisheye(img, dtype=D_TYPE, format=D_FORMAT, fov=D_FOV, pfov=D_PFOV)._image
 
-		# Execute the pipeline components
-		motion_detection.analyze(img, img_index)
-		geojson_plotter.analyze(img, img_index)
+		# Execute the pipeline components if they are enabled
+		if OUTPUT_FLOW or OUTPUT_COMBINED: motion_detection.analyze(img, img_index)
+		if OUTPUT_CAMERA or OUTPUT_PARKING: geojson_plotter.analyze(img, img_index)
 
 		print(f'Frame {img_index + 1}/{num_images} processed ({round((img_index + 1) / num_images * 100, 2)}%)...')
 		img_index += 1

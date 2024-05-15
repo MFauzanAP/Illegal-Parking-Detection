@@ -39,8 +39,11 @@ class GeoJsonPlotter():
 
 	# Load the parking geojson file
 	def load_parking(self):
-		with open(f'.\\data\\{self.dataset}\\parking.geojson', 'r') as f:
-			self.parking = loads(f.read())
+		try:
+			with open(f'.\\data\\{self.dataset}\\parking.geojson', 'r') as f:
+				self.parking = loads(f.read())
+		except:
+			print("No parking data found for this dataset")
 		
 	# Extract metadata from the image
 	def get_metadata(self, verbose=False):
@@ -143,5 +146,8 @@ class GeoJsonPlotter():
 		# Draw the parking polygon on the image and save it
 		self.parking_mask = np.ones_like(self.img)
 		cv.fillPoly(self.parking_mask, [np.array(projected_coords, np.int32)], (0, 255, 0, self.PARKING_TRANSPARENCY * 255))
+		cv.imwrite(f'.\\output\\{self.dataset}\\parking-only\\{"{:05d}".format(self.img_index)}.jpg', self.parking_mask)
+
+		# Overlay the parking mask on the image
 		cv.addWeighted(self.parking_mask, self.PARKING_TRANSPARENCY, self.img, 1, 0, self.img)
 		cv.imwrite(f'.\\output\\{self.dataset}\\parking\\{"{:05d}".format(self.img_index)}.jpg', self.img)

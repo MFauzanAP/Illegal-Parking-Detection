@@ -1,10 +1,6 @@
 import os
 import numpy as np
 import cv2 as cv
-import argparse
-import imutils
-
-from defisheye import Defisheye
 
 class MotionDetection():
 	REPROJECT_THRESHOLD = 0.2
@@ -32,10 +28,10 @@ class MotionDetection():
 		self.match_and_warp()
 
 		# Calculate optical flow between the current and warped previous image
-		self.plot_flow()
+		if self.output_flow: self.plot_flow()
 
 		# Combine the flow and warped along with matching features and save it
-		self.plot_combined()
+		if self.output_combined: self.plot_combined()
 
 		# Set these variables for the next iteration
 		self.old_img = self.img.copy()
@@ -100,10 +96,11 @@ class MotionDetection():
 
 		# Convert the flow to BGR for later use
 		self.flow_img = cv.cvtColor(hsv, cv.COLOR_HSV2BGR)
-		self.combined_flow = cv.add(self.img, self.flow_img)
+		cv.imwrite(f'.\\output\\{self.dataset}\\flow-only\\{"{:05d}".format(self.img_index)}.jpg', self.flow_img)
 
-		# Save the flow image
-		if self.output_flow: cv.imwrite(f'.\\output\\{self.dataset}\\flow\\{"{:05d}".format(self.img_index)}.jpg', self.combined_flow)
+		# Overlay the flow on the original image
+		self.combined_flow = cv.add(self.img, self.flow_img)
+		cv.imwrite(f'.\\output\\{self.dataset}\\flow\\{"{:05d}".format(self.img_index)}.jpg', self.combined_flow)
 
 	# Combine the flow and warped along with matching features and save it
 	def plot_combined(self):
