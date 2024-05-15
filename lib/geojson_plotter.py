@@ -10,11 +10,9 @@ from geojson import Polygon, dumps, loads
 class GeoJsonPlotter():
 	PARKING_TRANSPARENCY = 0.25
 
-	def __init__(self, dataset, img_width, output_camera=True, output_parking=True):
+	def __init__(self, dataset, img_width):
 		self.dataset = dataset
 		self.img_width = img_width
-		self.output_camera = output_camera
-		self.output_parking = output_parking
 
 		# Load the parking geojson file
 		self.load_parking()
@@ -33,10 +31,10 @@ class GeoJsonPlotter():
 		self.init_camera()
 
 		# Georeference the image to a geojson file
-		if self.output_camera: self.plot_camera()
+		self.plot_camera()
 
 		# Plot the parking data on the image
-		if self.output_parking: self.plot_parking()
+		self.plot_parking()
 
 	# Shortcut for getting the path to a directory
 	def get_path(self, dir, ext="jpg"): return f".\\output\\{self.dataset}\\{dir}\\{"{:05d}".format(self.img_index)}.{ext}"
@@ -139,8 +137,10 @@ class GeoJsonPlotter():
 		self.camera_polygon = Polygon([points], precision=8)
 
 		# Write the camera polygon to a GeoJSON file
-		with open(self.get_path("camera", "geojson"), 'w') as f:
-			f.write(dumps(self.camera_polygon))
+		try:
+			with open(self.get_path("camera", "geojson"), 'w') as f:
+				f.write(dumps(self.camera_polygon))
+		except: pass
 
 	# Plot the parking data on the image
 	def plot_parking(self):

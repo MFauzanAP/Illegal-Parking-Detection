@@ -12,11 +12,9 @@ class MotionDetection():
 	CIRCULARITY_MAX_THRESHOLD = 0.7		# Maximum circularity for a contour to be considered a car
 	NUM_CLUSTERS = 6
 
-	def __init__(self, dataset, img_width, output_flow=True, output_combined=True):
+	def __init__(self, dataset, img_width):
 		self.dataset = dataset
 		self.img_width = img_width
-		self.output_flow = output_flow
-		self.output_combined = output_combined
 
 		self.detector = cv.SIFT_create()
 		self.bf = cv.BFMatcher()
@@ -32,10 +30,10 @@ class MotionDetection():
 		self.match_and_warp()
 
 		# Calculate optical flow between the current and warped previous image
-		if self.output_flow: self.plot_flow()
+		self.plot_flow()
 
 		# Combine the flow and warped along with matching features and save it
-		if self.output_combined: self.plot_combined()
+		self.plot_combined()
 
 		# Set these variables for the next iteration
 		self.old_img = self.img.copy()
@@ -155,4 +153,4 @@ class MotionDetection():
 		))
 
 		# Save the combined image
-		if self.output_combined: cv.imwrite(self.get_path("combined-flow"), output_img)
+		cv.imwrite(self.get_path("combined-flow"), output_img)

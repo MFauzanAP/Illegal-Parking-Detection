@@ -14,10 +14,9 @@ class CarDetection():
 	NAMES_PATH = "model/model.names".encode("utf-8")
 	WEIGHTS_PATH = "model/model_best.weights".encode("utf-8")
 
-	def __init__(self, dataset, img_width, output_cars=True):
+	def __init__(self, dataset, img_width):
 		self.dataset = dataset
 		self.img_width = img_width
-		self.output_cars = output_cars
 
 		# Initialize DarkHelp with the neural network files.
 		with open(os.devnull, "w") as null, contextlib.redirect_stdout(null), contextlib.redirect_stderr(null):
@@ -113,8 +112,10 @@ class CarDetection():
 			self.car_bboxes.append(np.array([[rect_x, rect_y], [rect_x + rect_w, rect_y], [rect_x + rect_w, rect_y + rect_h], [rect_x, rect_y + rect_h]]))
 
 		# Save the prediction results to a JSON file
-		with open(self.get_path("cars-json", "json"), "w") as f:
-			json.dump(self.predictions, f, indent=4)
+		try:
+			with open(self.get_path("cars-json", "json"), "w") as f:
+				json.dump(self.predictions, f, indent=4)
+		except: pass
 
 		# Draw the annotations on the image and save it
 		self.car_bbox_img = np.ones_like(self.img)

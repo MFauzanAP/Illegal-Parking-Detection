@@ -1,3 +1,4 @@
+import os
 import json
 import imutils
 import cv2 as cv
@@ -13,12 +14,13 @@ class IPCDetection():
 		self.car_detection = car_detection
 		self.motion_detection = motion_detection
 		self.geojson_plotter = geojson_plotter
+		self.point_cloud = []
 
 	# Call to destroy the DarkHelp object
 	def destroy(self): DarkHelp.DestroyDarkHelpNN(self.dh)
 
 	# Shortcut for getting the path to a directory
-	def get_path(self, dir, ext="jpg"): return f".\\output\\{self.dataset}\\{dir}\\{"{:05d}".format(self.img_index)}.{ext}"
+	def get_path(self, dir, ext="jpg", absolute=False): return f"{os.getcwd() if absolute == True else '.'}\\output\\{self.dataset}\\{dir}\\{"{:05d}".format(self.img_index)}.{ext}"
 
 	# Analyze the image
 	def analyze(self, img, img_index):
@@ -43,6 +45,13 @@ class IPCDetection():
 
 		# Plot the point cloud of the cars that are parked illegally
 		self.plot_point_cloud()
+
+	# Export the point cloud data to a JSON file
+	def export_point_cloud(self):
+		try:
+			with open(f".\\output\\{self.dataset}\\point-cloud\\final.json", 'w') as f:
+				f.write(json.dumps(self.point_cloud, indent=4))
+		except: pass
 
 	# Detects intersections between two contours, or if they are overlapping
 	def detect_intersections(self, c1, c2):
@@ -75,7 +84,8 @@ class IPCDetection():
 		self.ipc_imgs = []
 		self.ipc_data = []
 		self.ipc_bboxes = []
-		for car in self.cars_bboxes:
+		num_illegal = 0
+		for i, car in enumerate(self.cars_bboxes):
 			# Check if the car's bounding box intersects with any of the parking spots or flow contours
 			is_legal = False
 			is_moving = False
@@ -90,7 +100,7 @@ class IPCDetection():
 
 			# If the car is moving or parked legally, skip it
 			if is_legal or is_moving: continue
-# https://www.google.com/maps/search/25.70974684152168,+51.51550151701877/@25.7097468,51.5129212,17z?entry=ttu
+
 			# Add the car's bounding box to the list
 			self.ipc_bboxes.append(car)
 
@@ -100,17 +110,27 @@ class IPCDetection():
 			if car_img.shape[0] > car_img.shape[1]: car_img = cv.transpose(car_img)
 			self.ipc_imgs.append(car_img)
 
+			# Save the car image to a file
+			img_path = f".\\output\\{self.dataset}\\ipc-only\\{"{:05d}".format(self.img_index)}_{"{:05d}".format(num_illegal)}.jpg"
+			cv.imwrite(img_path, car_img)
+
 			# Store the time and geographic coordinates of the car
 			gps_coords = self.cam.gpsFromImage([x + w/2, y + h/2])
-			self.ipc_data.append({
+			data = {
+				"img": img_path,
 				"time": self.timestamp,
 				"lat": gps_coords[0],
 				"lon": gps_coords[1],
 				"maps": f"https://www.google.com/maps/search/{gps_coords[0]},{gps_coords[1]}/@{gps_coords[0]},{gps_coords[1]},20z?entry=ttu"
-			})
+			}
+			self.ipc_data.append(data)
+			self.point_cloud.append(data)
+
+			# Increment the number of illegal cars
+			num_illegal += 1
 
 		# If there are no cars parked illegally, return
-		if len(self.ipc_imgs) == 0: return
+		if num_illegal == 0: return
 
 		# Draw the bounding boxes of the illegal cars on the image
 		output_ipc_img = self.img.copy()
@@ -121,8 +141,10 @@ class IPCDetection():
 		# Combine the car images into a single image
 		max_w = max([car_img.shape[1] for car_img in self.ipc_imgs])
 		combined = cv.vconcat([imutils.resize(car_img, width=max_w) for car_img in self.ipc_imgs])
-		cv.imwrite(self.get_path("ipc-only"), combined)
+		cv.imwrite(self.get_path("combined-ipc-only"), combined)
 
 		# Save the point cloud data to a JSON file
-		with open(self.get_path("point-cloud", "json"), 'w') as f:
-			f.write(json.dumps(self.ipc_data))
+		try:
+			with open(self.get_path("point-cloud", "json"), 'w') as f:
+				f.write(json.dumps(self.ipc_data, indent=4))
+		except: pass

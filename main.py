@@ -1,3 +1,4 @@
+import json
 import os
 import cv2 as cv
 import argparse
@@ -10,36 +11,33 @@ from lib.motion_detection import MotionDetection
 from lib.ipc_detection import IPCDetection
 
 # TODO:
-# - Save screenshot, time, and approximate coordinates of the cars that are parked illegally as data in a point cloud
 # - Find clusters of points in the point cloud that are close to each other and group them if they are the same car, do this by conducting image similarity analysis
 # - For each group of data points, calculate the time the car has been parked there and the approximate coordinates of the car
 # - If the cars have been parked there for more than a certain amount of time, flag them as illegally parked and save the data
 # - Analyze images in parallel
 
 RESIZED_WIDTH = 1000
-OUTPUT_COMBINED = True
-OUTPUT_FLOW = True
-OUTPUT_CAMERA = False
-OUTPUT_PARKING = True
-OUTPUT_CARS = True
+
+# Output directories, comment out the ones that you don't need, check readme.md for more information
 OUTPUT_DIRS = [
-	'grid-resized',
+	'grid-resized',			# Required for car detection
 	'cars',
-	'cars-json',
+	# 'cars-json',
 	'cars-bbox',
-	'cars-bbox-only',
-	'combined-flow',
+	# 'cars-bbox-only',
 	'flow',
-	'flow-only',
+	# 'flow-only',
 	'flow-bbox',
-	'flow-bbox-only',
-	'camera',
+	# 'flow-bbox-only',
+	# 'camera',
 	'parking',
-	'parking-bbox-only',
-	'combined-ipc',
+	# 'parking-bbox-only',
 	'ipc',
 	'ipc-only',
-	'point-cloud'
+	'point-cloud',
+	'combined-flow',
+	'combined-ipc',
+	'combined-ipc-only',
 ]
 
 # Has issues with plotting the camera, parking, and flow data, and also crops part of the image
@@ -54,15 +52,22 @@ def main():
 	parser.add_argument('dataset', type=str, help='Which dataset to load for analysis, this should be a subfolder name inside the "data" folder', default="output2")
 	args = parser.parse_args()
 
+	# Delete the old output directories
+	for dir in os.listdir(f'.\\output\\{args.dataset}'):
+		if os.path.exists(f'.\\output\\{args.dataset}\\{dir}'):
+			for file in os.listdir(f'.\\output\\{args.dataset}\\{dir}'):
+				os.remove(f'.\\output\\{args.dataset}\\{dir}\\{file}')
+			os.rmdir(f'.\\output\\{args.dataset}\\{dir}')
+
 	# Create output directories
 	for dir in OUTPUT_DIRS:
 		if not os.path.exists(f'.\\output\\{args.dataset}\\{dir}'): os.makedirs(f'.\\output\\{args.dataset}\\{dir}')
 
 	# Initialize the pipeline components
-	car_detection = CarDetection(dataset=args.dataset, img_width=RESIZED_WIDTH, output_cars=OUTPUT_CARS)
-	motion_detection = MotionDetection(dataset=args.dataset, img_width=RESIZED_WIDTH, output_flow=OUTPUT_FLOW, output_combined=OUTPUT_COMBINED)
-	geojson_plotter = GeoJsonPlotter(dataset=args.dataset, img_width=RESIZED_WIDTH, output_camera=OUTPUT_CAMERA, output_parking=OUTPUT_PARKING)
-	ipd_detection = IPCDetection(dataset=args.dataset, img_width=RESIZED_WIDTH, car_detection=car_detection, motion_detection=motion_detection, geojson_plotter=geojson_plotter)
+	car_detection = CarDetection(dataset=args.dataset, img_width=RESIZED_WIDTH)
+	motion_detection = MotionDetection(dataset=args.dataset, img_width=RESIZED_WIDTH)
+	geojson_plotter = GeoJsonPlotter(dataset=args.dataset, img_width=RESIZED_WIDTH)
+	ipc_detection = IPCDetection(dataset=args.dataset, img_width=RESIZED_WIDTH, car_detection=car_detection, motion_detection=motion_detection, geojson_plotter=geojson_plotter)
 
 	# Get the number of images in the directory
 	cwd = os.getcwd()
@@ -82,13 +87,16 @@ def main():
 		if REMOVE_DISTORTION: img = Defisheye(img, dtype=D_TYPE, format=D_FORMAT, fov=D_FOV, pfov=D_PFOV)._image
 
 		# Execute the pipeline components if they are enabled
-		if OUTPUT_CARS: car_detection.analyze(img, img_index)
-		if OUTPUT_FLOW or OUTPUT_COMBINED: motion_detection.analyze(img, img_index)
-		if OUTPUT_CAMERA or OUTPUT_PARKING: geojson_plotter.analyze(img, img_index)
-		if OUTPUT_CARS and OUTPUT_FLOW and OUTPUT_PARKING: ipd_detection.analyze(img, img_index)
+		car_detection.analyze(img, img_index)
+		motion_detection.analyze(img, img_index)
+		geojson_plotter.analyze(img, img_index)
+		ipc_detection.analyze(img, img_index)
 
 		print(f'Frame {img_index + 1}/{num_images} processed ({round((img_index + 1) / num_images * 100, 2)}%)...')
 		img_index += 1
+
+	# Export the point cloud data to a JSON file
+	ipc_detection.export_point_cloud()
 	
 	# Destroy the DarkHelp object
 	car_detection.destroy()
