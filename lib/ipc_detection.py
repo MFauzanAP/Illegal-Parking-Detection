@@ -35,7 +35,7 @@ class IPCDetection():
 		# Filter out the cars that are moving or parked legally
 		self.filter_cars()
 
-	# Detects intersections between two contours
+	# Detects intersections between two contours, or if they are overlapping
 	def detect_intersections(self, c1, c2):
 		def ccw(A, B, C): return (C[1]-A[1]) * (B[0]-A[0]) > (B[1]-A[1]) * (C[0]-A[0])
 		for i in range(len(c1)-1):
@@ -44,8 +44,14 @@ class IPCDetection():
 			for j in range(len(c2)-1):
 				a2 = c2[j]
 				b2 = c2[j + 1]
-				if ccw(a1,a2,b2) != ccw(b1,a2,b2) and ccw(a1,b1,a2) != ccw(a1,b1,b2):
-					return True
+
+				# Check if any line in both contours intersect with each other
+				if ccw(a1,a2,b2) != ccw(b1,a2,b2) and ccw(a1,b1,a2) != ccw(a1,b1,b2): return True
+
+				# Check if a point in one contour is inside the other contour
+				if cv.pointPolygonTest(c1, np.float16(a2), False) >= 0 or cv.pointPolygonTest(c2, np.float16(a1), False) >= 0: return True
+
+		# If no intersections are found, return False
 		return False
 
 	# Filter out the cars that are moving or parked legally
