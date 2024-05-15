@@ -4,6 +4,7 @@ import argparse
 import imutils
 from defisheye import Defisheye
 
+from lib.car_detection import CarDetection
 from lib.geojson_plotter import GeoJsonPlotter
 from lib.motion_detection import MotionDetection
 
@@ -17,11 +18,12 @@ from lib.motion_detection import MotionDetection
 # - Analyze images in parallel
 
 RESIZED_WIDTH = 1000
-OUTPUT_DIRS = ['combined', 'flow', 'flow-only', 'flow-bbox', 'camera', 'parking', 'parking-only']
+OUTPUT_DIRS = ['grid-resized', 'cars', 'cars-json', 'cars-bbox', 'combined', 'flow', 'flow-only', 'flow-bbox', 'camera', 'parking', 'parking-only']
 OUTPUT_COMBINED = True
 OUTPUT_FLOW = True
-OUTPUT_CAMERA = True
-OUTPUT_PARKING = True
+OUTPUT_CAMERA = False
+OUTPUT_PARKING = False
+OUTPUT_CARS = True
 
 # Has issues with plotting the camera, parking, and flow data, and also crops part of the image
 REMOVE_DISTORTION = False
@@ -40,6 +42,7 @@ def main():
 		if not os.path.exists(f'.\\output\\{args.dataset}\\{dir}'): os.makedirs(f'.\\output\\{args.dataset}\\{dir}')
 
 	# Initialize the pipeline components
+	car_detection = CarDetection(dataset=args.dataset, img_width=RESIZED_WIDTH, output_cars=OUTPUT_CARS)
 	motion_detection = MotionDetection(dataset=args.dataset, img_width=RESIZED_WIDTH, output_flow=OUTPUT_FLOW, output_combined=OUTPUT_COMBINED)
 	geojson_plotter = GeoJsonPlotter(dataset=args.dataset, img_width=RESIZED_WIDTH, output_camera=OUTPUT_CAMERA, output_parking=OUTPUT_PARKING)
 
@@ -61,11 +64,15 @@ def main():
 		if REMOVE_DISTORTION: img = Defisheye(img, dtype=D_TYPE, format=D_FORMAT, fov=D_FOV, pfov=D_PFOV)._image
 
 		# Execute the pipeline components if they are enabled
+		if OUTPUT_CARS: car_detection.analyze(img, img_index)
 		if OUTPUT_FLOW or OUTPUT_COMBINED: motion_detection.analyze(img, img_index)
 		if OUTPUT_CAMERA or OUTPUT_PARKING: geojson_plotter.analyze(img, img_index)
 
 		print(f'Frame {img_index + 1}/{num_images} processed ({round((img_index + 1) / num_images * 100, 2)}%)...')
 		img_index += 1
+	
+	# Destroy the DarkHelp object
+	car_detection.destroy()
 
 if __name__ == "__main__":
     main()

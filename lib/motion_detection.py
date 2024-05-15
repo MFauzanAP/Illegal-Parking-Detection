@@ -26,7 +26,6 @@ class MotionDetection():
 		self.img = img
 		self.gray = cv.cvtColor(self.img, cv.COLOR_BGR2GRAY)
 		self.img_index = img_index
-		self.img_path = f"{os.getcwd()}\\data\\{self.dataset}\\{"{:05d}".format(img_index)}.jpg"
 
 		# Find matches between two images and perform warping
 		self.match_and_warp()
@@ -42,6 +41,9 @@ class MotionDetection():
 		self.old_gray = self.gray.copy()
 		self.kp1 = self.kp2
 		self.des1 = self.des2
+
+	# Shortcut for getting the path to a directory
+	def get_path(self, dir, ext="jpg"): return f".\\output\\{self.dataset}\\{dir}\\{"{:05d}".format(self.img_index)}.{ext}"
 
 	# Detect matches between two images and warp the previous image to the current image
 	def match_and_warp(self):
@@ -68,10 +70,7 @@ class MotionDetection():
 		self.old_warped = cv.warpPerspective(self.old_gray, H, (self.gray.shape[1], self.gray.shape[0]))
 
 		# If there are any black pixels in the warped image, replace them with the corresponding pixels in the new frame
-		for i in range(self.old_warped.shape[0]):
-			for j in range(self.old_warped.shape[1]):
-				if self.old_warped[i, j] <= 0:
-					self.old_warped[i, j] = self.gray[i, j]
+		self.old_warped = np.where(self.old_warped <= 0, self.gray, self.old_warped)
 
 	# Calculate optical flow between the current and warped previous image
 	def plot_flow(self):
@@ -125,18 +124,18 @@ class MotionDetection():
 
 		# Convert the flow to BGR for later use
 		self.flow_img = cv.cvtColor(hsv, cv.COLOR_HSV2BGR)
-		cv.imwrite(f'.\\output\\{self.dataset}\\flow-only\\{"{:05d}".format(self.img_index)}.jpg', self.flow_img)
+		cv.imwrite(self.get_path("flow-only"), self.flow_img)
 
 		# Overlay the bounding boxes on the flow image
 		img_bbox = self.img.copy()
 		for bbox in bboxes:
 			cv.drawContours(img_bbox, [bbox], 0, (255, 0, 0), 4)
 		self.flow_bbox = img_bbox
-		cv.imwrite(f'.\\output\\{self.dataset}\\flow-bbox\\{"{:05d}".format(self.img_index)}.jpg', self.flow_bbox)
+		cv.imwrite(self.get_path("flow-bbox"), self.flow_bbox)
 
 		# Overlay the flow on the original image
 		self.combined_flow = cv.add(self.img, self.flow_img)
-		cv.imwrite(f'.\\output\\{self.dataset}\\flow\\{"{:05d}".format(self.img_index)}.jpg', self.combined_flow)
+		cv.imwrite(self.get_path("flow"), self.combined_flow)
 
 	# Combine the flow and warped along with matching features and save it
 	def plot_combined(self):

@@ -37,6 +37,9 @@ class GeoJsonPlotter():
 		# Plot the parking data on the image
 		if self.output_parking: self.plot_parking()
 
+	# Shortcut for getting the path to a directory
+	def get_path(self, dir, ext="jpg"): return f".\\output\\{self.dataset}\\{dir}\\{"{:05d}".format(self.img_index)}.{ext}"
+
 	# Load the parking geojson file
 	def load_parking(self):
 		try:
@@ -132,7 +135,7 @@ class GeoJsonPlotter():
 		self.camera_polygon = Polygon([points], precision=8)
 
 		# Write the camera polygon to a GeoJSON file
-		with open(f'.\\output\\{self.dataset}\\camera\\{"{:05d}".format(self.img_index)}.geojson', 'w') as f:
+		with open(self.get_path("camera", "geojson"), 'w') as f:
 			f.write(dumps(self.camera_polygon))
 
 	# Plot the parking data on the image
@@ -146,8 +149,8 @@ class GeoJsonPlotter():
 		# Draw the parking polygon on the image and save it
 		self.parking_mask = np.ones_like(self.img)
 		cv.fillPoly(self.parking_mask, [np.array(projected_coords, np.int32)], (0, 255, 0, self.PARKING_TRANSPARENCY * 255))
-		cv.imwrite(f'.\\output\\{self.dataset}\\parking-only\\{"{:05d}".format(self.img_index)}.jpg', self.parking_mask)
+		cv.imwrite(self.get_path("parking-only"), self.parking_mask)
 
 		# Overlay the parking mask on the image
 		cv.addWeighted(self.parking_mask, self.PARKING_TRANSPARENCY, self.img, 1, 0, self.img)
-		cv.imwrite(f'.\\output\\{self.dataset}\\parking\\{"{:05d}".format(self.img_index)}.jpg', self.img)
+		cv.imwrite(self.get_path("parking"), self.img)
