@@ -155,4 +155,4 @@ class MotionDetection():
 		))
 
 		# Save the combined image
-		if self.output_combined: cv.imwrite(f'.\\output\\{self.dataset}\\combined\\{"{:05d}".format(self.img_index)}.jpg', output_img)
+		if self.output_combined: cv.imwrite(self.get_path("combined-flow"), output_img)

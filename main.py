@@ -10,7 +10,6 @@ from lib.motion_detection import MotionDetection
 from lib.ipc_detection import IPCDetection
 
 # TODO:
-# - Filter out the cars that are moving or parked legally
 # - Save screenshot, time, and approximate coordinates of the cars that are parked illegally as data in a point cloud
 # - Find clusters of points in the point cloud that are close to each other and group them if they are the same car, do this by conducting image similarity analysis
 # - For each group of data points, calculate the time the car has been parked there and the approximate coordinates of the car
@@ -29,14 +28,18 @@ OUTPUT_DIRS = [
 	'cars-json',
 	'cars-bbox',
 	'cars-bbox-only',
-	'combined',
+	'combined-flow',
 	'flow',
 	'flow-only',
 	'flow-bbox',
 	'flow-bbox-only',
 	'camera',
 	'parking',
-	'parking-bbox-only'
+	'parking-bbox-only',
+	'combined-ipc',
+	'ipc',
+	'ipc-only',
+	'point-cloud'
 ]
 
 # Has issues with plotting the camera, parking, and flow data, and also crops part of the image
@@ -59,7 +62,7 @@ def main():
 	car_detection = CarDetection(dataset=args.dataset, img_width=RESIZED_WIDTH, output_cars=OUTPUT_CARS)
 	motion_detection = MotionDetection(dataset=args.dataset, img_width=RESIZED_WIDTH, output_flow=OUTPUT_FLOW, output_combined=OUTPUT_COMBINED)
 	geojson_plotter = GeoJsonPlotter(dataset=args.dataset, img_width=RESIZED_WIDTH, output_camera=OUTPUT_CAMERA, output_parking=OUTPUT_PARKING)
-	ipd_detection = IPCDetection(dataset=args.dataset, img_width=RESIZED_WIDTH)
+	ipd_detection = IPCDetection(dataset=args.dataset, img_width=RESIZED_WIDTH, car_detection=car_detection, motion_detection=motion_detection, geojson_plotter=geojson_plotter)
 
 	# Get the number of images in the directory
 	cwd = os.getcwd()
@@ -82,8 +85,7 @@ def main():
 		if OUTPUT_CARS: car_detection.analyze(img, img_index)
 		if OUTPUT_FLOW or OUTPUT_COMBINED: motion_detection.analyze(img, img_index)
 		if OUTPUT_CAMERA or OUTPUT_PARKING: geojson_plotter.analyze(img, img_index)
-		if OUTPUT_CARS and OUTPUT_FLOW and OUTPUT_PARKING:
-			ipd_detection.analyze(img, img_index, cars_bbox=car_detection.car_bboxes, flow_bbox=motion_detection.flow_bboxes, parking_bbox=geojson_plotter.parking_bboxes)
+		if OUTPUT_CARS and OUTPUT_FLOW and OUTPUT_PARKING: ipd_detection.analyze(img, img_index)
 
 		print(f'Frame {img_index + 1}/{num_images} processed ({round((img_index + 1) / num_images * 100, 2)}%)...')
 		img_index += 1

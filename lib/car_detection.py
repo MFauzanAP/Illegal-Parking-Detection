@@ -54,6 +54,9 @@ class CarDetection():
 		self.img_index = img_index
 		self.car_bboxes = []
 
+		# Only proceed if we have previous images
+		if self.img_index == 0: return
+
 		# Resize the image and tile it in a 2x2 grid for better detection
 		self.grid_resize()
 
@@ -114,12 +117,12 @@ class CarDetection():
 			json.dump(self.predictions, f, indent=4)
 
 		# Draw the annotations on the image and save it
-		self.cars_bbox_img = np.ones_like(self.img)
+		self.car_bbox_img = np.ones_like(self.img)
 		output_bbox = self.img.copy()
 		for bbox in self.car_bboxes:
 			top_left = tuple(bbox[0])
 			bottom_right = tuple(bbox[2])
-			cv.rectangle(self.cars_bbox_img, top_left, bottom_right, (0, 0, 255), cv.FILLED)
+			cv.rectangle(self.car_bbox_img, top_left, bottom_right, (0, 0, 255), cv.FILLED)
 			cv.rectangle(output_bbox, top_left, bottom_right, (0, 0, 255), 4)
-		cv.imwrite(self.get_path("cars-bbox-only"), self.cars_bbox_img)
+		cv.imwrite(self.get_path("cars-bbox-only"), self.car_bbox_img)
 		cv.imwrite(self.get_path("cars-bbox"), output_bbox)

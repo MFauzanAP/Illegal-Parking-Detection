@@ -60,6 +60,9 @@ class GeoJsonPlotter():
 			line = tag.strip().split(':')
 			info_dict[line[0].strip()] = line[-1].strip()
 
+		# Get the timestamp data
+		self.timestamp_data = info_dict['Date/Time Original']
+
 		# Get the camera data
 		f = float(re.sub('[^0-9.-]', '', info_dict['Lens Info'][:6]))
 		sx = 6.4		# https://sdk-forum.dji.net/hc/en-us/articles/12325496609689-What-is-the-custom-camera-parameters-for-Mavic-3-Enterprise-series-and-Mavic-3M
@@ -154,5 +157,6 @@ class GeoJsonPlotter():
 		cv.imwrite(self.get_path("parking-bbox-only"), self.parking_bbox_img)
 
 		# Overlay the parking mask on the image
-		cv.addWeighted(self.parking_bbox_img, self.PARKING_TRANSPARENCY, self.img, 1, 0, self.img)
-		cv.imwrite(self.get_path("parking"), self.img)
+		self.parking_img = self.img.copy()
+		cv.addWeighted(self.parking_bbox_img, self.PARKING_TRANSPARENCY, self.parking_img, 1, 0, self.parking_img)
+		cv.imwrite(self.get_path("parking"), self.parking_img)
