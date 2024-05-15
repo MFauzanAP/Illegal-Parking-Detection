@@ -5,8 +5,12 @@ import cv2 as cv
 class MotionDetection():
 	REPROJECT_THRESHOLD = 0.2
 	DISPLAY_FLOW = "dense"
-	FLOW_NORMALIZATION = "none" # "none", "min", "max"
-	FLOW_THRESHOLD = 50
+	FLOW_THRESHOLD = 17.5
+	AREA_MIN_THRESHOLD = 5000			# Minimum area for a contour to be considered a car
+	AREA_MAX_THRESHOLD = 25000			# Maximum area for a contour to be considered a car
+	CIRCULARITY_MIN_THRESHOLD = 0.375	# Minimum circularity for a contour to be considered a car
+	CIRCULARITY_MAX_THRESHOLD = 0.7		# Maximum circularity for a contour to be considered a car
+	NUM_CLUSTERS = 6
 
 	def __init__(self, dataset, img_width, output_flow=True, output_combined=True):
 		self.dataset = dataset
@@ -83,16 +87,30 @@ class MotionDetection():
 		hsv[..., 1] = 255
 		hsv[..., 0] = ang*180/np.pi/2
 
-		# Normalize the flow
-		if self.FLOW_NORMALIZATION != "none":
-			for i in range(mag.shape[0]):
-				for j in range(mag.shape[1]):
-					if self.FLOW_NORMALIZATION == "min" and mag[i, j] < self.FLOW_THRESHOLD:
-						mag[i, j] = 0
-					elif self.FLOW_NORMALIZATION == "max" and mag[i, j] > self.FLOW_THRESHOLD:
-						mag[i, j] = 0
-			hsv[..., 2] = cv.normalize(mag, None, 0, 255, cv.NORM_MINMAX)
-		else: hsv[..., 2] = mag
+		# Allow only flows that are above a certain threshold
+		hsv[..., 2] = cv.threshold(mag, self.FLOW_THRESHOLD, 255, cv.THRESH_BINARY)[1]
+
+		# Reduce the number of colors in the flow image to make it easier to identify distinct flows
+		Z = hsv.reshape((-1, 3))
+		Z = np.float32(Z)
+		criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+		_, label, center = cv.kmeans(Z, self.NUM_CLUSTERS, None, criteria, 10, cv.KMEANS_RANDOM_CENTERS)
+		center = np.uint8(center)
+		res = center[label.flatten()]
+		hsv = res.reshape((hsv.shape))
+
+		# Filter out any blobs that are too small or too large, and those that are too thin or wide
+		gray = cv.cvtColor(hsv, cv.COLOR_BGR2GRAY)
+		_, thresh = cv.threshold(gray, 175, 255, 0)
+		contours, _ = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+		for contour in contours:
+			area = cv.contourArea(contour)
+			perimeter = cv.arcLength(contour, True)
+			circularity = (4 * np.pi * area) / (perimeter * perimeter) if perimeter > 0 else 0
+			exceeds_area = area < self.AREA_MIN_THRESHOLD or area > self.AREA_MAX_THRESHOLD
+			exceeds_circularity = circularity < self.CIRCULARITY_MIN_THRESHOLD or circularity > self.CIRCULARITY_MAX_THRESHOLD
+			if exceeds_area or exceeds_circularity:
+				cv.drawContours(hsv, [contour], -1, (0, 0, 0), -1)
 
 		# Convert the flow to BGR for later use
 		self.flow_img = cv.cvtColor(hsv, cv.COLOR_HSV2BGR)
