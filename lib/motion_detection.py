@@ -26,6 +26,7 @@ class MotionDetection():
 		self.img = img
 		self.gray = cv.cvtColor(self.img, cv.COLOR_BGR2GRAY)
 		self.img_index = img_index
+		self.flow_bboxes = []
 
 		# Find matches between two images and perform warping
 		self.match_and_warp()
@@ -99,7 +100,7 @@ class MotionDetection():
 		hsv = res.reshape((hsv.shape))
 
 		# Extract the contours from the flow image to clean it up and draw bounding boxes around the blobs
-		bboxes = []
+		self.flow_bboxes = []
 		gray = cv.cvtColor(hsv, cv.COLOR_BGR2GRAY)
 		_, thresh = cv.threshold(gray, 175, 255, 0)
 		contours, _ = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
@@ -120,18 +121,20 @@ class MotionDetection():
 				rect = cv.minAreaRect(contour)
 				box = cv.boxPoints(rect)
 				box = np.int0(box)
-				bboxes.append(box)
+				self.flow_bboxes.append(box)
 
 		# Convert the flow to BGR for later use
 		self.flow_img = cv.cvtColor(hsv, cv.COLOR_HSV2BGR)
 		cv.imwrite(self.get_path("flow-only"), self.flow_img)
 
 		# Overlay the bounding boxes on the flow image
-		img_bbox = self.img.copy()
-		for bbox in bboxes:
-			cv.drawContours(img_bbox, [bbox], 0, (255, 0, 0), 4)
-		self.flow_bbox = img_bbox
-		cv.imwrite(self.get_path("flow-bbox"), self.flow_bbox)
+		self.flow_bbox_img = np.ones_like(self.img)
+		output_bbox = self.img.copy()
+		for bbox in self.flow_bboxes:
+			cv.drawContours(self.flow_bbox_img, [bbox], 0, (255, 0, 0), cv.FILLED)
+			cv.drawContours(output_bbox, [bbox], 0, (255, 0, 0), 4)
+		cv.imwrite(self.get_path("flow-bbox-only"), self.flow_bbox_img)
+		cv.imwrite(self.get_path("flow-bbox"), output_bbox)
 
 		# Overlay the flow on the original image
 		self.combined_flow = cv.add(self.img, self.flow_img)

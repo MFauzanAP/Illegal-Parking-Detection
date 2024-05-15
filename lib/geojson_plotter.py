@@ -24,6 +24,7 @@ class GeoJsonPlotter():
 		self.img = img
 		self.img_index = img_index
 		self.img_path = f"{os.getcwd()}\\data\\{self.dataset}\\{"{:05d}".format(img_index)}.jpg"
+		self.parking_bboxes = []
 
 		# Extract metadata from the image
 		self.get_metadata()
@@ -145,12 +146,13 @@ class GeoJsonPlotter():
 		for coord in self.parking.get('features')[0].get('geometry').get('coordinates')[0]:
 			x, y = self.cam.imageFromGPS(np.array([coord[1], coord[0]]))
 			projected_coords.append([x, y])
+		self.parking_bboxes.append(np.int0(projected_coords))
 
 		# Draw the parking polygon on the image and save it
-		self.parking_mask = np.ones_like(self.img)
-		cv.fillPoly(self.parking_mask, [np.array(projected_coords, np.int32)], (0, 255, 0, self.PARKING_TRANSPARENCY * 255))
-		cv.imwrite(self.get_path("parking-only"), self.parking_mask)
+		self.parking_bbox_img = np.ones_like(self.img)
+		cv.fillPoly(self.parking_bbox_img, [np.array(self.parking_bboxes, np.int32)], (0, 255, 0, self.PARKING_TRANSPARENCY * 255))
+		cv.imwrite(self.get_path("parking-bbox-only"), self.parking_bbox_img)
 
 		# Overlay the parking mask on the image
-		cv.addWeighted(self.parking_mask, self.PARKING_TRANSPARENCY, self.img, 1, 0, self.img)
+		cv.addWeighted(self.parking_bbox_img, self.PARKING_TRANSPARENCY, self.img, 1, 0, self.img)
 		cv.imwrite(self.get_path("parking"), self.img)

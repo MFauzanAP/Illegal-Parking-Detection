@@ -3,11 +3,12 @@ import json
 import imutils
 import contextlib
 import cv2 as cv
+import numpy as np
 
 from lib import DarkHelp
 
 class CarDetection():
-	DETECTION_THRESHOLD = 0.2
+	DETECTION_THRESHOLD = 0.3
 	TILE_SIZE = 360
 	CONFIG_PATH = "model/model.cfg".encode("utf-8")
 	NAMES_PATH = "model/model.names".encode("utf-8")
@@ -50,8 +51,8 @@ class CarDetection():
 	# Analyze the image
 	def analyze(self, img, img_index):
 		self.img = img
-		self.gray = cv.cvtColor(self.img, cv.COLOR_BGR2GRAY)
 		self.img_index = img_index
+		self.car_bboxes = []
 
 		# Resize the image and tile it in a 2x2 grid for better detection
 		self.grid_resize()
@@ -63,10 +64,9 @@ class CarDetection():
 	def grid_resize(self):
 		self.resized = imutils.resize(self.img, height=self.TILE_SIZE)
 
-		# Create a 2x2 grid of the resized image
 		grid = cv.vconcat([
-			cv.hconcat([self.resized, self.resized]),
-			cv.hconcat([self.resized, self.resized]),
+			cv.hconcat([self.resized, np.ones_like(self.resized)]),
+			cv.hconcat([np.ones_like(self.resized), np.ones_like(self.resized)]),
 		])
 
 		# Save the grid image
@@ -82,16 +82,20 @@ class CarDetection():
 		# Process the prediction results by only taking predictions from the first tile and scaling the rect
 		results = json.loads(DarkHelp.GetPredictionResults(self.dh).decode())
 		self.predictions = results["file"][0]["prediction"]
-		bboxes = []
+
+		# Map predictions that are outside the bounds of the first tile to the original image
 		for prediction in self.predictions:
 			rect_x = prediction["rect"]["x"]
 			rect_y = prediction["rect"]["y"]
 			rect_w = prediction["rect"]["width"]
 			rect_h = prediction["rect"]["height"]
 
-			# Skip any detections that are outside the bounds of the first tile
-			bottom_right = (rect_x + rect_w, rect_y + rect_h)
-			if bottom_right[0] > self.resized.shape[1] or bottom_right[1] > self.resized.shape[0]: continue
+		self.car_bboxes = []
+		for prediction in self.predictions:
+			rect_x = prediction["rect"]["x"]
+			rect_y = prediction["rect"]["y"]
+			rect_w = prediction["rect"]["width"]
+			rect_h = prediction["rect"]["height"]
 
 			# Calculate scaling factor to account for grid resizing and scaling to the original image size
 			scale_factor = (self.img.shape[0] / self.resized.shape[0])
@@ -102,16 +106,20 @@ class CarDetection():
 			rect_w = int(rect_w * scale_factor)
 			rect_h = int(rect_h * scale_factor)
 
-			# Append the bounding box to the list
-			bboxes.append(((rect_x, rect_y), (rect_x + rect_w, rect_y + rect_h)))
+			# Append the bounding box as a contour to the list
+			self.car_bboxes.append(np.array([[rect_x, rect_y], [rect_x + rect_w, rect_y], [rect_x + rect_w, rect_y + rect_h], [rect_x, rect_y + rect_h]]))
 
 		# Save the prediction results to a JSON file
 		with open(self.get_path("cars-json", "json"), "w") as f:
 			json.dump(self.predictions, f, indent=4)
 
 		# Draw the annotations on the image and save it
-		self.img_annotation = self.img.copy()
-		for bbox in bboxes:
-			top_left, bottom_right = bbox
-			cv.rectangle(self.img_annotation, top_left, bottom_right, (0, 0, 255), 4)
-		cv.imwrite(self.get_path("cars-bbox"), self.img_annotation)
+		self.cars_bbox_img = np.ones_like(self.img)
+		output_bbox = self.img.copy()
+		for bbox in self.car_bboxes:
+			top_left = tuple(bbox[0])
+			bottom_right = tuple(bbox[2])
+			cv.rectangle(self.cars_bbox_img, top_left, bottom_right, (0, 0, 255), cv.FILLED)
+			cv.rectangle(output_bbox, top_left, bottom_right, (0, 0, 255), 4)
+		cv.imwrite(self.get_path("cars-bbox-only"), self.cars_bbox_img)
+		cv.imwrite(self.get_path("cars-bbox"), output_bbox)
