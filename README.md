@@ -3,6 +3,23 @@ This project aims to develop a system for detecting illegal parking using drones
 
 > **Note:** This project is developed as part of the course project for MECH420 - Introduction to Drones at Qatar University.
 
+## Table of Contents
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Getting Started](#getting-started)
+  - [Training the Model](#training-the-model)
+  - [Output Directories](#output-directories)
+- [Processing Pipeline](#processing-pipeline)
+- [Data Collection](#data-collection)
+- [How did we do it?](#how-did-we-do-it)
+  - [1. Motion Detection](#1-motion-detection)
+	- [Perspective Warping](#perspective-warping)
+	- [Optical Flow](#optical-flow)
+  - [2. Parking Spot Detection](#2-parking-spot-detection)
+  - [3. Car Detection](#3-car-detection)
+- [Future Work](#future-work)
+- [References / Resources](#references--resources)
+
 # Getting Started
 
 ## Prerequisites
@@ -51,6 +68,8 @@ The following list shows the available output directories and their descriptions
 
 # Data Collection
 
+We used a DJI Mavic 3T drone to capture images of the area. The drone was flown at an altitude of 50 meters with a speed of 5 m/s. The ground sampling distance was set to 1.5 cm/pixel. The flight time was approximately 1 minute. The drone was set to fly in a grid pattern to capture images of the area.
+
 | Parameter | Value |
 | --- | --- |
 | Drone | DJI Mavic 3T |
@@ -60,7 +79,13 @@ The following list shows the available output directories and their descriptions
 | Flight Time | ~1 minute |
 | Mission Type | Area Mapping |
 
-We used a DJI Mavic 3T drone to capture images of the area. The drone was flown at an altitude of 50 meters with a speed of 5 m/s. The ground sampling distance was set to 1.5 cm/pixel. The flight time was approximately 1 minute. The drone was set to fly in a grid pattern to capture images of the area.
+However, there are some changes we would like to make in the future:
+
+- **Higher Altitude**: The drone should fly at a higher altitude to capture more of the area and reduce the error from the perspective shift.
+- **DJI Phantom**: We would like to use a DJI Phantom drone if given the opportunity as it has a top down camera which would reduce the effect of the drone orientation on the images.
+- **Waypoint Mission**: Performing a waypoint mission would allow us to capture a larger area and specifically target areas where illegal parking is common.
+
+Additional information on future work can be found in the [Future Work](#future-work) section.
 
 # How did we do it?
 
@@ -73,12 +98,14 @@ When brainstorming ideas for detecting IPCs, one of the first risks we tried to 
 
 At first, we weren't aware of all the different techniques available to us, so we decided to first investigate the seemingly simpler option 1. This was because, prior to this, we found many tools to stitch orthomosaics from drone imagery, such as [OpenDroneMap](https://github.com/OpenDroneMap/WebODM) which we successfully got up and running. However, after playing around with it and trying to overlay multiple orthomosaics, we realized that this was not a viable solution. The orthomosaics were too large and the process was too slow to be practical. We then decided to investigate option 2.
 
-## Motion Detection
+## 1. Motion Detection
 
 After a lot of research, we came across a technique in computer vision called **optical flow** which allows you to detect motion between frames. Two types existed, *sparse* and *dense*. Sparse optical flow is faster, but only identifies the motion of specific pixels (or features) between the two frames. Dense optical flow on the other hand was slower, but gave us patches of motion from one frame to the next. We thought this suited our project better, so we decided to go with dense optical flow.
 
-![Sparse vs. Dense Optical Flow](docs/imgs/sparse_vs_dense_of.jpeg)\
-*Sparse vs. Dense Optical Flow*
+<p>
+	<div align="center"><img width="800" src="docs/imgs/sparse_vs_dense_of.jpeg" alt="Sparse vs. Dense Optical Flow"></div>
+	<div align="center"><i>Sparse vs. Dense Optical Flow</i></div>
+</p>
 
 ### Perspective Warping
 
@@ -91,26 +118,36 @@ One issue was, these techniques were often used for **fixed** cameras, not for d
 
 This is done in the [`match_and_warp` function](https://github.com/MFauzanAP/Illegal-Parking-Detection/blob/main/lib/motion_detection.py#L48). As seen there, we used `cv.SIFT_create()` for detecting features, `cv.BFMatcher()` for matching them, `cv.findHomography()` for calculating the homography matrix, and `cv.warpPerspective()` to warp the previous frame. One catch was, after the image had been warped, there were black areas around the edges where the image had been stretched.
 
-![Black Areas in Warped Image](docs/imgs/warp_black_edges.png)\
-*Black Areas in Warped Image*
+<p>
+	<div align="center"><img width="600" src="docs/imgs/warp_black_edges.png" alt="Black Areas in Warped Image"></div>
+	<div align="center"><i>Black Areas in Warped Image</i></div>
+</p>
 
 To fix this, we just implemented a fallback to the current frame for these areas. The following image shows the previous frame on the left, the warped frame in the middle, and the current frame on the right. However, some inconsistencies can be seen in the warped result, especially when the drone is turning between frames. Ultimately, after some playing around with the parameters, we managed to get good results, and in hindsight, we realized that this was not too big of a problem.
 
-![Frame by Frame Comparison](docs/imgs/frame_by_frame_warping.png)\
-*Result (middle) of warping the previous image (left) to the current image (right). Note the large difference in perspective of the building at the bottom of the image. This will be a bit of an issue later on.*
+<p>
+	<div align="center"><img src="docs/imgs/frame_by_frame_warping.png" alt="Frame by Frame Comparison"></div>
+	<div align="center"><i>Result (middle) of warping the previous image (left) to the current image (right). Note the large difference in perspective of the building at the bottom of the image. This will be a bit of an issue later on.</i></div>
+</p>
 
 ### Optical Flow
 
 After having warped the previous frame to align with the current frame, we could now calculate the dense optical flow between them. At first, we used the `cv.calcOpticalFlowFarneback()` function from OpenCV, which gave decent results. There were some minor issues (inherently due to our lack of understanding) such as the algorithm detecting flow in areas where the warping had many errors. But after some time we realized it was because we had normalized the flow values, which meant that in frames with not much motion, the slightest movement would be detected as a large flow. Additionally, since we flew the drone in a relatively low altitude (50m), tall objects would have large flows due to the perspective shift. Also, on the day of the mission, there were many birds flying around, which the algorithm also detected as motion.
 
-![Large Flows in Tall Objects](docs/imgs/building_motion.png)\
-*The building at the bottom has large flows due to the perspective shift. Note that for reference, this is from the same frame as the image above*
+<p>
+	<div align="center"><img width="600" src="docs/imgs/building_motion.png" alt="Large Flows in Tall Objects"></div>
+	<div align="center"><i>The building at the bottom has large flows due to the perspective shift. Note that for reference, this is from the same frame as the image above</i></div>
+</p>
 
-![Normalized Flows](docs/imgs/normalized_flow.jpg)\
-*Normalized flows in a frame with not much motion, notice the large flows detected on the ground, but when looking at the compared images above, there does not seem to be much motion*
+<p>
+	<div align="center"><img src="docs/imgs/normalized_flow.jpg" alt="Normalized Flows"></div>
+	<div align="center"><i>Normalized flows in a frame with not much motion, notice the large flows detected on the ground, but when looking at the compared images above, there does not seem to be much motion</i></div>
+</p>
 
-![Birds Detected as Motion](docs/imgs/birds_and_lamp_post_flow.png)\
-*Birds (small colored dots) and lamp post perspective shift detected as flow*
+<p>
+	<div align="center"><img width="600" src="docs/imgs/birds_and_lamp_post_flow.png" alt="Birds Detected as Motion"></div>
+	<div align="center"><i>Birds detected as motion in the flow image</i></div>
+</p>
 
 Ultimately, we managed to fix these issues by doing the following steps outlined below. The implementation for all of these can be found in the [`plot_flow` function](https://github.com/MFauzanAP/Illegal-Parking-Detection/blob/main/lib/motion_detection.py#L75).
 
@@ -119,17 +156,21 @@ Ultimately, we managed to fix these issues by doing the following steps outlined
 - **Reduce Colors to Identify Distinct Flows**: We found that by using [color quantization](https://machinelearningmastery.com/k-means-clustering-in-opencv-and-application-for-color-quantization/), we were able to easily distinguish between flows in different directions. This way, we only had a cluster of colors, which will be used in the next step.
 - **Filter out Non-Car-Like Flows**: After staring at the flow images for a while, we realized that cars had a distinct flow pattern. They were moderately large, often connected, and had a rectangular-ish shape, whilst the others were often either large, disconnected, thin streaks, or unnatural abstract patterns. To filter these, we extracted contours from the image obtained previously, and calculated the area, perimeter, and circularity of each contour. We then filtered out the contours that did not fit the criteria of a car-like flow.
 
-![Before and After Filtering](docs/imgs/flow_before_after.png)\
-*We can see a huge improvement in the flow image after applying the above steps! Notice the lack of colors around the warped edges, the lamp posts aren't classified as moving, and the clearer, single-colored blob on top of the moving car*
+<p>
+	<div align="center"><img width="800" src="docs/imgs/flow_before_after.png" alt="Before and After Filtering"></div>
+	<div align="center"><i>We can see a huge improvement in the flow image after applying the above steps! Notice the lack of colors around the warped edges, the lamp posts aren't classified as moving, and the clearer, single-colored blob on top of the moving car</i></div>
+</p>
 
 From here, all that was left was to draw bounding boxes around the areas of motion for later use. This was easily done using `cv.minAreaRect`. Note however, that this function does not give a regular bounding box, but instead an oriented one. This actually works in our favour as it means our detection will be more accurate. Below is an example of a normal bounding box and an oriented one.
 
-![Bounding Box vs. Oriented Bounding Box](docs/imgs/bounding_vs_oriented_box.png)\
-*See how the bounding box (left) on the right doesn't properly fit the car? This effect is more pronounced when the car is at an angle, which is why we used oriented bounding boxes (right).*
+<p>
+	<div align="center"><img width="800" src="docs/imgs/bounding_vs_oriented_box.png" alt="Bounding Box vs. Oriented Bounding Box"></div>
+	<div align="center"><i>See how the bounding box (left) on the right doesn't properly fit the car? This effect is more pronounced when the car is at an angle, which is why we used oriented bounding boxes (right).</i></div>
+</p>
 
 Now, we've successfully detected motion in the images. The next thing we worked on was trying to figure out the parking areas.
 
-## Parking Spot Detection
+## 2. Parking Spot Detection
 
 One core feature we needed to implement was to distinguish between cars that are legally parked and those that aren't. Intuitively, there are two ways to detect parking spots:
 
@@ -138,14 +179,90 @@ One core feature we needed to implement was to distinguish between cars that are
 
 However, at this point in time, we did not know much about machine learning. The first option seemed too complex and require too much investment, as it meant we needed to find existing data for training, learn about setting up a machine learning framework, and then how to use it to annotate the images. The second option seemed more feasible, but we had to find a tool that could do this. Eventually, we found something called GeoJSON which is a way to store shapes and polygons on a 2D map based on coordinates.
 
-Using [GeoJSON.io](https://geojson.io/) we located our mission location, and manually drew out the parking spots that were being investigated. We then exported this as a GeoJSON file and included it in each of our datasets (from the mission).
+Using [GeoJSON.io](https://geojson.io/) we located our mission location, and manually drew out the parking spots that were being investigated. We then exported this as a GeoJSON file and included it in each of our datasets (from the mission). Then, we created a new component in our pipeline to project these parking spots onto the images. One difficulty with this was that the pictures taken weren't exactly top-down, so the parking spots were often skewed. We had to figure out a way to calculate the geographic coordinates of any pixel on our image.
+
+Thankfully, we found a python library called [`cameratransform`](https://cameratransform.readthedocs.io/en/latest/index.html) which handled all the required math for us. All we needed was:
+
+- The camera's focal length
+- The camera's sensor size
+- The final image size
+- The drone's altitude
+- The drone's GPS coordinates
+
+Fortunately, DJI provides all of this information in the image's metadata. We used [ExifTool](https://exiftool.org/) to extract this information and then used it to initialize the `cameratransform` object. Initially, we wanted to verify our calculations and values were correct, so we recorded the geographic coordinates of the corners of the images, and created a GeoJSON file with these points. We then imported this into GeoJSON.io and verified that the corners of the image were correctly placed on the map. Doing this led to a few tweaks such as using the relative altitude of the drone instead of the absolute altitude, and aligning the yaw axis of the drone to be the same as what is used in `cameratransform`. All of this can be seen in the [`init_camera`](https://github.com/MFauzanAP/Illegal-Parking-Detection/blob/main/lib/geojson_plotter.py#L102) and [`plot_camera`](https://github.com/MFauzanAP/Illegal-Parking-Detection/blob/main/lib/geojson_plotter.py#L123) functions.
+
+<p>
+	<div align="center"><img width="800" src="docs/imgs/camera_projection.png" alt="Camera GeoJSON vs. Actual Captured Image"></div>
+	<div align="center"><i>The left image shows the corners of the image projected on a satellite map, the right image shows the actual captured photo. Note that the satellite map is slightly off, so the representation is not 100% accurate.</i></div>
+</p>
+
+After we have verified our projection method to be working, we went ahead and loaded the initial GeoJSON file with the parking spots, and projected them onto the images. This was done by iterating through the points, calling `cam.imageFromGPS` on each point, and creating an oriented bounding box around the projected points. The final result can be seen below.
+
+<p>
+	<div align="center"><img width="600" src="docs/imgs/parking_spots.jpg" alt="Parking Spots Projected onto Original Image"></div>
+	<div align="center"><i>Although it seems like the green overlay is slightly off (human error whilst creating the GeoJSON file, this is a disadvantage of our method), this does not matter much in our case as it still covers all the cars in question.</i></div>
+</p>
+
+Now the last thing we needed before we could start detecting IPCs was to detect the cars in the images.
+
+## 3. Car Detection
+
+This part was arguably the most challenging part of the project, mostly because we had no prior experience with machine learning. Initially, we tried to use pre-trained models from RoboFlow, but we quickly realized that these models were not trained on the type of data we had. We then realized that we had to train our own model, but we had no idea how to do this. After some research, we found a tool called [Darknet](https://github.com/hank-ai/darknet), which is a neural network framework that makes it easy to train models on custom datasets. Tied closely to Darknet was a tool called [DarkHelp](https://github.com/stephanecharette/DarkHelp), which made the work more abstracted and easier to understand.
+
+### Model Training
+
+After successfully setting up the tools needed (and testing on one of the provided datasets/models), we started searching for a dataset to train on. In hindsight, we should have used the [ATG-PVD Dataset](https://sites.google.com/view/atg-pvd/dataset?authuser=0) which was more suitable for our use case, however at the time we did not realize this, and instead went for another vehicle detection dataset for aerial imagery called [VAID](https://ieeexplore.ieee.org/document/9268932). This dataset contained many low-altitude, overhead images of cars in Taiwan. Although it seems suitable at first, we realized later on that the altitude of the images was higher than what we had, and the number of classes was 7 which included things like trailers, motorcycles, and buses, which were not relevant to our use case. Although we went ahead with it anyway, this could be a potential area for improvement in the future.
+
+<p>
+	<div align="center"><img width="600" src="docs/imgs/sample_training_img.jpg" alt="Sample Training Image"></div>
+	<div align="center"><i>An example of one of the images we used for training. Notice the presence of trucks, which slightly affects our model's performance.</i></div>
+</p>
+
+To split the dataset into training and testing, we utilized a package called `pylabel` which also allowed us to convert the annotations from the `VOC` format used by the dataset to the `YOLO` format used by Darknet. Finally, before starting the training, we had to create a configuration file for the model. This was done by copying the `yolov4-tiny-custom.cfg` file from the Darknet repository, and modifying it to fit our dataset. This included changing the number of classes, the number of filters, the network size, etc. Once everything was ready, we started the training process.
+
+### Model Performance
+
+The training process was done on a local machine with a GTX 1080 GPU. The training took around 5 hours to complete, and the final model had a mAP of 0.8686. At first, this seems to be very good, however after looking at the mAP for each of the classes, we realized that the model was not performing well on the car class. This may be due to the presence of other classes, meaning the training process was focused on improving the average mAP, which meant the car class was not as well trained as it could have been. The best mAP for the car class was 0.7743, whilst for a class like the bus, it was 0.9865.
+
+<p>
+	<div align="center"><img src="docs/imgs/car_bus_accuracy.png" alt="mAP of the Car class vs. the Bus class"></div>
+	<div align="center"><i>On the left we have the performance curve for the Car class, and on the right we have the curve for the Bus class. We see that at some point, the Car had better mAP, but since we were training for all classes, it meant the weights for this result were discarded.</i></div>
+</p>
+
+Fortunately, after testing the model on some of our sample images, we found that the model was performing well enough for our use case. The model was able to detect cars in the images, and the bounding boxes were accurate enough for our purposes. One modification we had to make was to tile the input image with black tiles to make it a 2x2 grid. This was because the training images were for higher altitudes, and so the cars in those images were about half the size. By tiling the images, we could simulate the effect of a higher altitude for our images, resulting in better detection. In fact, without doing this, the model would not detect any cars at all.
+
+<p>
+	<div align="center"><img width="600" src="docs/imgs/tiled_car_detection.jpg" alt="Input Image Tiled in a 2x2 Grid with Black Tiles"></div>
+	<div align="center"><i>Tiling the images like above allows us to properly detect the cars from our mission</i></div>
+</p>
+
+### Model Integration
+
+To integrate the trained model into our pipeline, we created a new `model` folder with the best weights obtained, as well as a modified configuration file with different batch sizes and subdivisions. We then imported the `DarkHelp.py` file from the official repo to perform inference on the images. One slight hiccup we faced was that the coordinates had to be transformed back to the original image size, as the inference was done on the tiled images. But in the end, we managed to get the model working and detecting cars in the images.
+
+<p>
+	<div align="center"><img width="600" src="docs/imgs/false_positive.jpg" alt="Model Detecting Window as Car"></div>
+	<div align="center"><i>Our pipeline was able to extract bounding boxes of cars, with some false positives here and there however.</i></div>
+</p>
+
+Unfortunately however, we found that the model produced some false positives from time to time. As seen in the image above, the model detected a window as a car. We think this is partly caused by the training images containing too much information that was not relevant to our use case, and in different climate and conditions as well. It may have seen a trailer or bus that looked similar to our window, and thus classified it as a car. This is an area for improvement in the future.
+
+# Future Work
+
+- Execute processing pipeline directly on the drone to reduce the time between image capture and processing and to allow for real-time alerts. This would be done by assembling a custom drone equipped with a Jetson Nano or similar device.
+- Improve machine learning model for car detection by training on a larger or more relevant dataset.
+- Create a web interface for the authorities to view the results of the processing pipeline.
+- Create a 3D model of illegally parked cars using the point cloud data for better visualization.
+- Investigate removing lens distortion from the images to improve the accuracy of the parking spot detection.
 
 # References / Resources
 
 - [ExifTool](https://exiftool.org/)
-- [Darknet]()
-- [DarkHelp]()
+- [Darknet](https://github.com/hank-ai/darknet)
+- [DarkHelp](https://github.com/stephanecharette/DarkHelp)
 - [OpenDroneMap](https://github.com/OpenDroneMap/WebODM)
 - [ATG-PVD Dataset](https://sites.google.com/view/atg-pvd/dataset?authuser=0)
 - [Color Quantization](https://machinelearningmastery.com/k-means-clustering-in-opencv-and-application-for-color-quantization/)
 - [GeoJSON.io](https://geojson.io/)
+- [CameraTransform](https://cameratransform.readthedocs.io/en/latest/index.html)
+- [VAID Dataset](https://ieeexplore.ieee.org/document/9268932)
