@@ -1,4 +1,3 @@
-import json
 import os
 import cv2 as cv
 import argparse
@@ -11,10 +10,11 @@ from lib.motion_detection import MotionDetection
 from lib.ipc_detection import IPCDetection
 
 # TODO:
-# - Find clusters of points in the point cloud that are close to each other and group them if they are the same car, do this by conducting image similarity analysis
-# - For each group of data points, calculate the time the car has been parked there and the approximate coordinates of the car
 # - If the cars have been parked there for more than a certain amount of time, flag them as illegally parked and save the data
+# - Tweak flow detection to better detect cars even with small motion
+# - Improve car detection model by training it on more data or data with only cars (to reduce false positives)
 # - Analyze images in parallel
+# - Create 3d model of each ipc if it has been parked there for a long time
 
 RESIZED_WIDTH = 1000
 
@@ -22,19 +22,20 @@ RESIZED_WIDTH = 1000
 OUTPUT_DIRS = [
 	'grid-resized',			# Required for car detection
 	'cars',
-	# 'cars-json',
+	'cars-json',
 	'cars-bbox',
-	# 'cars-bbox-only',
+	'cars-bbox-only',
 	'flow',
-	# 'flow-only',
+	'flow-only',
 	'flow-bbox',
-	# 'flow-bbox-only',
-	# 'camera',
+	'flow-bbox-only',
+	'camera',
 	'parking',
-	# 'parking-bbox-only',
+	'parking-bbox-only',
 	'ipc',
 	'ipc-only',
 	'point-cloud',
+	'clustered-point-cloud',
 	'combined-flow',
 	'combined-ipc',
 	'combined-ipc-only',
@@ -95,9 +96,18 @@ def main():
 		print(f'Frame {img_index + 1}/{num_images} processed ({round((img_index + 1) / num_images * 100, 2)}%)...')
 		img_index += 1
 
+	print('All frames processed!')
+	print('Analyzing point cloud data...')
+
 	# Export the point cloud data to a JSON file
 	ipc_detection.export_point_cloud()
-	
+
+	# Cluster the point cloud data
+	ipc_detection.cluster_point_cloud()
+
+	# Analyze these clusters to find illegally parked cars throughout the whole mission
+	ipc_detection.analyze_clusters()
+
 	# Destroy the DarkHelp object
 	car_detection.destroy()
 

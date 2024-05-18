@@ -5,6 +5,7 @@ import cv2 as cv
 import numpy as np
 import cameratransform as ct
 
+from datetime import datetime
 from geojson import Polygon, dumps, loads
 
 class GeoJsonPlotter():
@@ -55,11 +56,11 @@ class GeoJsonPlotter():
 		# Loop through each tag in the exif data
 		info_dict = {}
 		for tag in process.stdout:
-			line = tag.strip().split(':')
+			line = tag.strip().split(':', 1)
 			info_dict[line[0].strip()] = line[-1].strip()
 
 		# Get the timestamp data
-		self.timestamp_data = info_dict['Date/Time Original']
+		self.timestamp_data = int(datetime.strptime(info_dict['Date/Time Original'], "%Y:%m:%d %H:%M:%S").timestamp())
 
 		# Get the camera data
 		f = float(re.sub('[^0-9.-]', '', info_dict['Lens Info'][:6]))

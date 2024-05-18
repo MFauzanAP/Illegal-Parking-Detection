@@ -64,6 +64,7 @@ The following list shows the available output directories and their descriptions
 - `ipc`: Source images with bounding boxes around the illegally parked cars drawn on them.
 - `ipc-only`: Individual snippets of the illegally parked cars.
 - `point-cloud`: Point cloud data for the illegally parked cars.
+- `clustered-point-cloud`: Color-coded point cloud data for the illegally parked cars.
 - `combined-flow`: Shows the warped images with feature tracks drawn and the final output flow image.
 - `combined-ipc`: Overlays the car, flow, and parking bounding boxes into a single image.
 - `combined-ipc-only`: Combines all IPC snippets in each frame into a single image
