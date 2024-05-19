@@ -34,6 +34,9 @@ This project aims to develop a system for detecting illegal parking using drones
 - [DarkHelp](https://github.com/stephanecharette/DarkHelp)
 
 ## Getting Started
+
+> Note: The parameters used in the code are specific to our dataset and may need to be adjusted for different datasets.
+
 1. Clone this repository: `git clone https://github.com/MFauzanAP/Illegal-Parking-Detection.git`
 2. Install the required dependencies: `pip install -r requirements.txt`
 3. Open `main.py` and comment out any directories that are not needed in `OUTPUT_DIRS`. A description of each directory is given in [Output Directories](#output-directories)
@@ -282,6 +285,46 @@ Unfortunately, the results were not perfect. As seen in the image above, the alg
 Also, we found a way to solve this issue, so it wasn't too big of a problem in the end. We will explore this in greater detail in the next section.
 
 ### 4.2. The Point Cloud
+
+To fix the issues discussed above, and to merge all the processing and produce a final result, we decided to represent our data as a point cloud. Each point in this data represents an instance where an IPC was found in any of the processed frames. Each point includes data on the geographic coordinate of the car, timestamp it was found, and the url where the snippet of the car can be found.
+
+```json
+{
+	"img": ".\\output\\output2\\ipc-only\\00012_00000.jpg",
+	"time": 1714385514,
+	"lat": 25.38452601052214,
+	"lon": 51.48979564842517,
+}
+```
+
+With this data, we can perform the DBSCAN clustering algorithm to identify areas where many points are clumped up and leave out the sparsely-populated zones. Since IPCs are stationary, they will be picked up multiple times in a single mission, allowing us to filter out for false-positives (from car detection) which was a problem we had before. To fix the issue of moving cars being detected, we used a custom metric that compares the following between two different points:
+
+- **Haversine Distance**: Distance between two geographical coordinates in meters, since IPCs stay in the same spot, we can filter out clusters of points that are too far apart, and skip the rest of the comparison.
+- **Image Similarity**: One issue with moving cars (and areas with multiple, closely-packed IPCs) is that they might come a bit too close to another car that is actually illegally parked, causing the DBSCAN algorithm to cluster them together and identify them as one IPC. To fix this, we calculated the similarity between the images by:
+	- **Feature Matching**: Measure the number of matching features between the two images.
+	- **Histogram Comparison**: Compare the histograms of the two images to see how similar they are in terms of color.
+	- **Perceptual Hashing**: Compare the structure/layout of the two images, this is needed as sometimes the first two methods might not be enough to differentiate between two images.
+
+We then defined a threshold value by stating how close a point can be to another to be considered the same IPC, as well as a minimum similarity score, obtained through trial and error. Any points with an overall score below this threshold are considered as the same IPC. The final result is a color-coded point cloud where each colored cluster represents a different IPC.
+
+<p>
+	<div align="center"><img width="600" src="docs/imgs/clustered_point_cloud.png" alt="Color-Coded Point Cloud"></div>
+	<div align="center"><i>Each colored cluster in this plot represents an IPC. Pay attention to the streak of black dots at the bottom. Previously, due to inaccuracies with the optical flow, a moving vehicle was considered to be illegally parked there. Also notice how the sparse black dots at the bottom, previously false-positives, are now discarded.</i></div>
+</p>
+
+The final step is to loop through each of the identified clusters and make sure they have stayed in the same spot for too long. Since we included the date and time of each point, we can calculate the time difference between the first and last point to find out how long the car has been parked there. If the time difference is above a certain threshold, we tag it as an IPC. The implementation for this can be found in the [`analyze_point_cloud`](https://github.com/MFauzanAP/Illegal-Parking-Detection/blob/main/lib/ipc_detection.py#L233) function.
+
+Now, we have successfully detected IPCs from the drone mission.
+
+# Conclusion
+
+To conclude, we have successfully detected illegal parking by deploying a drone on a scanning and capturing mission. From these captured images, we identified the cars found in each frame and filtered out those that are moving and those that are parked legally, leaving only (potentially) illegally parked cars. Finally, a report is generated containing snippets of all the potential IPCs, their approximate coordinates, how long they were parked for, as well as a google maps link for easier tracking. We've also included other information about the mission and processing in this report. In practical applications, this report would be sent to the authorities for further action. Either a dispatch would be sent to the location to verify the IPCs, or a second drone mission would be deployed to verify the IPCs.
+
+In terms of detection accuracy, we found that for our specific data set, the algorithm was able to detect all the IPCs (although there was only one) in the area. However, for different datasets, the accuracy may vary. During car and motion detection, we found some false positives, and although this was automatically filtered out at the end, it might not be as successful in other cases leading to poor detection performance.
+
+In terms of processing time, it took ~3.1 minutes to process 76 images, with a mission time of 1 minute. This means that the processing time is about 3 times the mission time. This is not ideal, and there are many avenues for improvement, but for a first attempt, this is acceptable.
+
+Overall, we are satisfied with the results of our project. We have successfully detected IPCs from drone images, and have created a report that can be sent to the authorities for further action. We have also identified areas for improvement, and have outlined them in the [Future Work](#future-work) section.
 
 # Future Work
 
