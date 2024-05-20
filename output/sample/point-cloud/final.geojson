@@ -1,0 +1,1205 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979564842517,
+                    25.38452601052214
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00012_00000.jpg",
+                "time": 1714385514,
+                "maps": "https://www.google.com/maps/search/25.38452601052214,51.48979564842517/@25.38452601052214,51.48979564842517,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48980102458348,
+                    25.38452297271104
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00013_00000.jpg",
+                "time": 1714385514,
+                "maps": "https://www.google.com/maps/search/25.38452297271104,51.48980102458348/@25.38452297271104,51.48980102458348,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979489069289,
+                    25.384521630145315
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00014_00000.jpg",
+                "time": 1714385515,
+                "maps": "https://www.google.com/maps/search/25.384521630145315,51.48979489069289/@25.384521630145315,51.48979489069289,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979572981306,
+                    25.384519617224097
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00015_00000.jpg",
+                "time": 1714385516,
+                "maps": "https://www.google.com/maps/search/25.384519617224097,51.48979572981306/@25.384519617224097,51.48979572981306,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979095160189,
+                    25.384515985182578
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00016_00000.jpg",
+                "time": 1714385516,
+                "maps": "https://www.google.com/maps/search/25.384515985182578,51.48979095160189/@25.384515985182578,51.48979095160189,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979635708617,
+                    25.38451245666827
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00017_00000.jpg",
+                "time": 1714385517,
+                "maps": "https://www.google.com/maps/search/25.38451245666827,51.48979635708617/@25.38451245666827,51.48979635708617,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489785834907266,
+                    25.384520467568333
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00018_00000.jpg",
+                "time": 1714385518,
+                "maps": "https://www.google.com/maps/search/25.384520467568333,51.489785834907266/@25.384520467568333,51.489785834907266,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979958609031,
+                    25.384507478759815
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00019_00000.jpg",
+                "time": 1714385519,
+                "maps": "https://www.google.com/maps/search/25.384507478759815,51.48979958609031/@25.384507478759815,51.48979958609031,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979955294512,
+                    25.38451484792222
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00020_00000.jpg",
+                "time": 1714385519,
+                "maps": "https://www.google.com/maps/search/25.38451484792222,51.48979955294512/@25.38451484792222,51.48979955294512,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979551744378,
+                    25.384518117180033
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00021_00000.jpg",
+                "time": 1714385520,
+                "maps": "https://www.google.com/maps/search/25.384518117180033,51.48979551744378/@25.384518117180033,51.48979551744378,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979916522767,
+                    25.38451849082281
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00022_00000.jpg",
+                "time": 1714385521,
+                "maps": "https://www.google.com/maps/search/25.38451849082281,51.48979916522767/@25.38451849082281,51.48979916522767,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489766939661656,
+                    25.384570217402903
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00023_00000.jpg",
+                "time": 1714385521,
+                "maps": "https://www.google.com/maps/search/25.384570217402903,51.489766939661656/@25.384570217402903,51.489766939661656,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48980083670534,
+                    25.38451987606292
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00023_00001.jpg",
+                "time": 1714385521,
+                "maps": "https://www.google.com/maps/search/25.38451987606292,51.48980083670534/@25.38451987606292,51.48980083670534,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48980274865524,
+                    25.384521835595148
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00024_00000.jpg",
+                "time": 1714385522,
+                "maps": "https://www.google.com/maps/search/25.384521835595148,51.48980274865524/@25.384521835595148,51.48980274865524,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48980447383368,
+                    25.384517489363265
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00025_00000.jpg",
+                "time": 1714385523,
+                "maps": "https://www.google.com/maps/search/25.384517489363265,51.48980447383368/@25.384517489363265,51.48980447383368,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979919030598,
+                    25.38451631405962
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00026_00000.jpg",
+                "time": 1714385524,
+                "maps": "https://www.google.com/maps/search/25.38451631405962,51.48979919030598/@25.38451631405962,51.48979919030598,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489762453756406,
+                    25.384564393156662
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00027_00000.jpg",
+                "time": 1714385524,
+                "maps": "https://www.google.com/maps/search/25.384564393156662,51.489762453756406/@25.384564393156662,51.489762453756406,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979449830781,
+                    25.384521146098432
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00027_00001.jpg",
+                "time": 1714385524,
+                "maps": "https://www.google.com/maps/search/25.384521146098432,51.48979449830781/@25.384521146098432,51.48979449830781,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48978997892395,
+                    25.384525108874108
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00028_00000.jpg",
+                "time": 1714385525,
+                "maps": "https://www.google.com/maps/search/25.384525108874108,51.48978997892395/@25.384525108874108,51.48978997892395,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489751213398286,
+                    25.38459307064503
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00029_00000.jpg",
+                "time": 1714385526,
+                "maps": "https://www.google.com/maps/search/25.38459307064503,51.489751213398286/@25.38459307064503,51.489751213398286,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979656907712,
+                    25.384527519826978
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00029_00001.jpg",
+                "time": 1714385526,
+                "maps": "https://www.google.com/maps/search/25.384527519826978,51.48979656907712/@25.384527519826978,51.48979656907712,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48982344134265,
+                    25.384587741280065
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00030_00000.jpg",
+                "time": 1714385526,
+                "maps": "https://www.google.com/maps/search/25.384587741280065,51.48982344134265/@25.384587741280065,51.48982344134265,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489796411394074,
+                    25.38452732532234
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00030_00001.jpg",
+                "time": 1714385526,
+                "maps": "https://www.google.com/maps/search/25.38452732532234,51.489796411394074/@25.38452732532234,51.489796411394074,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.4897979454103,
+                    25.384526877026875
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00031_00000.jpg",
+                "time": 1714385527,
+                "maps": "https://www.google.com/maps/search/25.384526877026875,51.4897979454103/@25.384526877026875,51.4897979454103,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979296808462,
+                    25.38452437539796
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00032_00000.jpg",
+                "time": 1714385528,
+                "maps": "https://www.google.com/maps/search/25.38452437539796,51.48979296808462/@25.38452437539796,51.48979296808462,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979369387764,
+                    25.384521960053082
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00033_00000.jpg",
+                "time": 1714385528,
+                "maps": "https://www.google.com/maps/search/25.384521960053082,51.48979369387764/@25.384521960053082,51.48979369387764,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979357845958,
+                    25.38452414951745
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00034_00000.jpg",
+                "time": 1714385529,
+                "maps": "https://www.google.com/maps/search/25.38452414951745,51.48979357845958/@25.38452414951745,51.48979357845958,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48978970447161,
+                    25.384519531418846
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00035_00000.jpg",
+                "time": 1714385530,
+                "maps": "https://www.google.com/maps/search/25.384519531418846,51.48978970447161/@25.384519531418846,51.48978970447161,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979146572386,
+                    25.384517191762757
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00036_00000.jpg",
+                "time": 1714385531,
+                "maps": "https://www.google.com/maps/search/25.384517191762757,51.48979146572386/@25.384517191762757,51.48979146572386,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979942164809,
+                    25.384514321361543
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00037_00000.jpg",
+                "time": 1714385531,
+                "maps": "https://www.google.com/maps/search/25.384514321361543,51.48979942164809/@25.384514321361543,51.48979942164809,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489801329239555,
+                    25.38451510322339
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00038_00000.jpg",
+                "time": 1714385532,
+                "maps": "https://www.google.com/maps/search/25.38451510322339,51.489801329239555/@25.38451510322339,51.489801329239555,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48980128567485,
+                    25.38451574767692
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00039_00000.jpg",
+                "time": 1714385533,
+                "maps": "https://www.google.com/maps/search/25.38451574767692,51.48980128567485/@25.38451574767692,51.48980128567485,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48980606737459,
+                    25.384519222273887
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00040_00000.jpg",
+                "time": 1714385533,
+                "maps": "https://www.google.com/maps/search/25.384519222273887,51.48980606737459/@25.384519222273887,51.48980606737459,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48980635463076,
+                    25.384519898015338
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00041_00000.jpg",
+                "time": 1714385534,
+                "maps": "https://www.google.com/maps/search/25.384519898015338,51.48980635463076/@25.384519898015338,51.48980635463076,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48980285674803,
+                    25.38451838830188
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00042_00000.jpg",
+                "time": 1714385535,
+                "maps": "https://www.google.com/maps/search/25.38451838830188,51.48980285674803/@25.38451838830188,51.48980285674803,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979850624801,
+                    25.384518229013985
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00043_00000.jpg",
+                "time": 1714385536,
+                "maps": "https://www.google.com/maps/search/25.384518229013985,51.48979850624801/@25.384518229013985,51.48979850624801,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489796599161615,
+                    25.384519293535032
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00044_00000.jpg",
+                "time": 1714385536,
+                "maps": "https://www.google.com/maps/search/25.384519293535032,51.489796599161615/@25.384519293535032,51.489796599161615,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489794745513436,
+                    25.384522791977005
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00045_00000.jpg",
+                "time": 1714385537,
+                "maps": "https://www.google.com/maps/search/25.384522791977005,51.489794745513436/@25.384522791977005,51.489794745513436,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979977682355,
+                    25.384528268510365
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00046_00000.jpg",
+                "time": 1714385538,
+                "maps": "https://www.google.com/maps/search/25.384528268510365,51.48979977682355/@25.384528268510365,51.48979977682355,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489695575129396,
+                    25.384692927309327
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00047_00000.jpg",
+                "time": 1714385538,
+                "maps": "https://www.google.com/maps/search/25.384692927309327,51.489695575129396/@25.384692927309327,51.489695575129396,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48980298658214,
+                    25.38452797917426
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00047_00001.jpg",
+                "time": 1714385538,
+                "maps": "https://www.google.com/maps/search/25.38452797917426,51.48980298658214/@25.38452797917426,51.48980298658214,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489798950560484,
+                    25.384527368675077
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00048_00000.jpg",
+                "time": 1714385539,
+                "maps": "https://www.google.com/maps/search/25.384527368675077,51.489798950560484/@25.384527368675077,51.489798950560484,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979870421897,
+                    25.384526523984544
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00049_00000.jpg",
+                "time": 1714385540,
+                "maps": "https://www.google.com/maps/search/25.384526523984544,51.48979870421897/@25.384526523984544,51.48979870421897,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979731220641,
+                    25.384524457883604
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00050_00000.jpg",
+                "time": 1714385540,
+                "maps": "https://www.google.com/maps/search/25.384524457883604,51.48979731220641/@25.384524457883604,51.48979731220641,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48970488593737,
+                    25.38466630495005
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00050_00001.jpg",
+                "time": 1714385540,
+                "maps": "https://www.google.com/maps/search/25.38466630495005,51.48970488593737/@25.38466630495005,51.48970488593737,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.4897979519812,
+                    25.384522836933492
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00051_00000.jpg",
+                "time": 1714385541,
+                "maps": "https://www.google.com/maps/search/25.384522836933492,51.4897979519812/@25.384522836933492,51.4897979519812,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48971275109644,
+                    25.38465200798768
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00051_00001.jpg",
+                "time": 1714385541,
+                "maps": "https://www.google.com/maps/search/25.38465200798768,51.48971275109644/@25.38465200798768,51.48971275109644,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489793722276474,
+                    25.38452370854462
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00052_00000.jpg",
+                "time": 1714385542,
+                "maps": "https://www.google.com/maps/search/25.38452370854462,51.489793722276474/@25.38452370854462,51.489793722276474,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979367414697,
+                    25.384516053962187
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00053_00000.jpg",
+                "time": 1714385543,
+                "maps": "https://www.google.com/maps/search/25.384516053962187,51.48979367414697/@25.384516053962187,51.48979367414697,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48972190464887,
+                    25.38462683298031
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00053_00001.jpg",
+                "time": 1714385543,
+                "maps": "https://www.google.com/maps/search/25.38462683298031,51.48972190464887/@25.38462683298031,51.48972190464887,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48973278819826,
+                    25.38461719413017
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00054_00000.jpg",
+                "time": 1714385543,
+                "maps": "https://www.google.com/maps/search/25.38461719413017,51.48973278819826/@25.38461719413017,51.48973278819826,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979851014986,
+                    25.38451276587701
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00054_00001.jpg",
+                "time": 1714385543,
+                "maps": "https://www.google.com/maps/search/25.38451276587701,51.48979851014986/@25.38451276587701,51.48979851014986,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48980076489548,
+                    25.384513452968324
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00055_00000.jpg",
+                "time": 1714385544,
+                "maps": "https://www.google.com/maps/search/25.384513452968324,51.48980076489548/@25.384513452968324,51.48980076489548,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.4897402352121,
+                    25.384610238476107
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00055_00001.jpg",
+                "time": 1714385544,
+                "maps": "https://www.google.com/maps/search/25.384610238476107,51.4897402352121/@25.384610238476107,51.4897402352121,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489803951485506,
+                    25.384512453829537
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00056_00000.jpg",
+                "time": 1714385545,
+                "maps": "https://www.google.com/maps/search/25.384512453829537,51.489803951485506/@25.384512453829537,51.489803951485506,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489804263517755,
+                    25.384515022474442
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00057_00000.jpg",
+                "time": 1714385545,
+                "maps": "https://www.google.com/maps/search/25.384515022474442,51.489804263517755/@25.384515022474442,51.489804263517755,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489805880278006,
+                    25.384516303584167
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00058_00000.jpg",
+                "time": 1714385546,
+                "maps": "https://www.google.com/maps/search/25.384516303584167,51.489805880278006/@25.384516303584167,51.489805880278006,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48980370659376,
+                    25.384518213893806
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00059_00000.jpg",
+                "time": 1714385547,
+                "maps": "https://www.google.com/maps/search/25.384518213893806,51.48980370659376/@25.384518213893806,51.48980370659376,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48975538869646,
+                    25.384580418816185
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00060_00000.jpg",
+                "time": 1714385547,
+                "maps": "https://www.google.com/maps/search/25.384580418816185,51.48975538869646/@25.384580418816185,51.48975538869646,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48975249771713,
+                    25.38457824140308
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00061_00000.jpg",
+                "time": 1714385548,
+                "maps": "https://www.google.com/maps/search/25.38457824140308,51.48975249771713/@25.38457824140308,51.48975249771713,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979361023561,
+                    25.384520905177432
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00062_00000.jpg",
+                "time": 1714385549,
+                "maps": "https://www.google.com/maps/search/25.384520905177432,51.48979361023561/@25.384520905177432,51.48979361023561,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489753728294154,
+                    25.384577046491255
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00062_00001.jpg",
+                "time": 1714385549,
+                "maps": "https://www.google.com/maps/search/25.384577046491255,51.489753728294154/@25.384577046491255,51.489753728294154,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489795934805606,
+                    25.384528236177985
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00063_00000.jpg",
+                "time": 1714385550,
+                "maps": "https://www.google.com/maps/search/25.384528236177985,51.489795934805606/@25.384528236177985,51.489795934805606,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48975937570756,
+                    25.38458034444083
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00063_00001.jpg",
+                "time": 1714385550,
+                "maps": "https://www.google.com/maps/search/25.38458034444083,51.48975937570756/@25.38458034444083,51.48975937570756,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48976324868173,
+                    25.38458273562908
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00064_00000.jpg",
+                "time": 1714385550,
+                "maps": "https://www.google.com/maps/search/25.38458273562908,51.48976324868173/@25.38458273562908,51.48976324868173,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979939079662,
+                    25.384528407085675
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00064_00001.jpg",
+                "time": 1714385550,
+                "maps": "https://www.google.com/maps/search/25.384528407085675,51.48979939079662/@25.384528407085675,51.48979939079662,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489801137364125,
+                    25.384525490758143
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00065_00000.jpg",
+                "time": 1714385551,
+                "maps": "https://www.google.com/maps/search/25.384525490758143,51.489801137364125/@25.384525490758143,51.489801137364125,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48976497874573,
+                    25.384580657320143
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00065_00001.jpg",
+                "time": 1714385551,
+                "maps": "https://www.google.com/maps/search/25.384580657320143,51.48976497874573/@25.384580657320143,51.48976497874573,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979643708249,
+                    25.384524866636337
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00066_00000.jpg",
+                "time": 1714385552,
+                "maps": "https://www.google.com/maps/search/25.384524866636337,51.48979643708249/@25.384524866636337,51.48979643708249,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489761903249345,
+                    25.38458140844647
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00066_00001.jpg",
+                "time": 1714385552,
+                "maps": "https://www.google.com/maps/search/25.38458140844647,51.489761903249345/@25.38458140844647,51.489761903249345,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48989922689547,
+                    25.384660688635154
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00067_00000.jpg",
+                "time": 1714385552,
+                "maps": "https://www.google.com/maps/search/25.384660688635154,51.48989922689547/@25.384660688635154,51.48989922689547,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979655750739,
+                    25.384524217953693
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00067_00001.jpg",
+                "time": 1714385552,
+                "maps": "https://www.google.com/maps/search/25.384524217953693,51.48979655750739/@25.384524217953693,51.48979655750739,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489757129671375,
+                    25.38458277411424
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00067_00002.jpg",
+                "time": 1714385552,
+                "maps": "https://www.google.com/maps/search/25.38458277411424,51.489757129671375/@25.38458277411424,51.489757129671375,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48979855940268,
+                    25.384527829469288
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00068_00000.jpg",
+                "time": 1714385553,
+                "maps": "https://www.google.com/maps/search/25.384527829469288,51.48979855940268/@25.384527829469288,51.48979855940268,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48975445731905,
+                    25.38459143828673
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00068_00001.jpg",
+                "time": 1714385553,
+                "maps": "https://www.google.com/maps/search/25.38459143828673,51.48975445731905/@25.38459143828673,51.48975445731905,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48974510359203,
+                    25.384754953395813
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00070_00000.jpg",
+                "time": 1714385555,
+                "maps": "https://www.google.com/maps/search/25.384754953395813,51.48974510359203/@25.384754953395813,51.48974510359203,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48974595732371,
+                    25.38475322027242
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00071_00000.jpg",
+                "time": 1714385555,
+                "maps": "https://www.google.com/maps/search/25.38475322027242,51.48974595732371/@25.38475322027242,51.48974595732371,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489733293942805,
+                    25.384614127196034
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00071_00001.jpg",
+                "time": 1714385555,
+                "maps": "https://www.google.com/maps/search/25.384614127196034,51.489733293942805/@25.384614127196034,51.489733293942805,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.48975208945673,
+                    25.384754794306513
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00072_00000.jpg",
+                "time": 1714385556,
+                "maps": "https://www.google.com/maps/search/25.384754794306513,51.48975208945673/@25.384754794306513,51.48975208945673,20z?entry=ttu"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    51.489753140311706,
+                    25.384758202043383
+                ]
+            },
+            "properties": {
+                "img": ".\\output\\output2\\ipc-only\\00073_00000.jpg",
+                "time": 1714385557,
+                "maps": "https://www.google.com/maps/search/25.384758202043383,51.489753140311706/@25.384758202043383,51.489753140311706,20z?entry=ttu"
+            }
+        }
+    ]
+}

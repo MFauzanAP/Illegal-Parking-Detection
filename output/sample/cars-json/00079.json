@@ -1,0 +1,110 @@
+[
+    {
+        "all_probabilities": [
+            {
+                "class": 0,
+                "name": "1",
+                "probability": 0.49027255177497864
+            }
+        ],
+        "best_class": 0,
+        "best_probability": 0.49027255177497864,
+        "name": "1 49%",
+        "original_point": {
+            "x": 0.01145833358168602,
+            "y": 0.3097222149372101
+        },
+        "original_size": {
+            "height": 0.08888889104127884,
+            "width": 0.02291666716337204
+        },
+        "prediction_index": 0,
+        "rect": {
+            "height": 64,
+            "width": 22,
+            "x": 0,
+            "y": 191
+        }
+    },
+    {
+        "all_probabilities": [
+            {
+                "class": 0,
+                "name": "1",
+                "probability": 0.5897375345230103
+            }
+        ],
+        "best_class": 0,
+        "best_probability": 0.5897375345230103,
+        "name": "1 59%",
+        "original_point": {
+            "x": 0.29814669489860535,
+            "y": 0.48098453879356384
+        },
+        "original_size": {
+            "height": 0.04336116835474968,
+            "width": 0.06778217107057571
+        },
+        "prediction_index": 1,
+        "rect": {
+            "height": 31,
+            "width": 65,
+            "x": 254,
+            "y": 331
+        }
+    },
+    {
+        "all_probabilities": [
+            {
+                "class": 0,
+                "name": "1",
+                "probability": 0.9783547520637512
+            }
+        ],
+        "best_class": 0,
+        "best_probability": 0.9783547520637512,
+        "name": "1 98%",
+        "original_point": {
+            "x": 0.07530978322029114,
+            "y": 0.3126479387283325
+        },
+        "original_size": {
+            "height": 0.0937792956829071,
+            "width": 0.03158865123987198
+        },
+        "prediction_index": 2,
+        "rect": {
+            "height": 68,
+            "width": 30,
+            "x": 57,
+            "y": 191
+        }
+    },
+    {
+        "all_probabilities": [
+            {
+                "class": 0,
+                "name": "1",
+                "probability": 0.9947845935821533
+            }
+        ],
+        "best_class": 0,
+        "best_probability": 0.9947845935821533,
+        "name": "1 99%",
+        "original_point": {
+            "x": 0.2267116904258728,
+            "y": 0.31956592202186584
+        },
+        "original_size": {
+            "height": 0.09697973728179932,
+            "width": 0.030773183330893517
+        },
+        "prediction_index": 3,
+        "rect": {
+            "height": 70,
+            "width": 30,
+            "x": 203,
+            "y": 195
+        }
+    }
+]
