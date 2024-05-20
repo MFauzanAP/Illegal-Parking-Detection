@@ -4,7 +4,6 @@ import imutils
 import cv2 as cv
 import numpy as np
 
-from lib import DarkHelp
 from perception import hashers
 from sklearn.cluster import DBSCAN
 from matplotlib import pyplot as plt
@@ -13,7 +12,6 @@ class IPCDetection():
 	MIN_DISTANCE = 1					# in meters
 	MIN_SIMILARITY = 120
 	MIN_SAMPLES = 10
-	METER_PER_RADIAN = 6371008.8
 
 	MAX_ILLEGAL_PARKING_TIME = 15		# in seconds, how long can a car be parked illegally before it is tagged for investigation
 
@@ -24,14 +22,16 @@ class IPCDetection():
 		self.motion_detection = motion_detection
 		self.geojson_plotter = geojson_plotter
 
+		self.METER_PER_RADIAN = geojson_plotter.METER_PER_RADIAN
+
 		self.detector = motion_detection.detector
 		self.bf = cv.BFMatcher(cv.NORM_L2, crossCheck=True)
 
 		self.point_cloud = []
 		self.point_cloud_imgs = []
-
-	# Call to destroy the DarkHelp object
-	def destroy(self): DarkHelp.DestroyDarkHelpNN(self.dh)
+		self.potential_ipcs_hist = [0]
+		self.num_ipcs = 0
+		self.tagged_ipcs = []
 
 	# Shortcut for getting the path to a directory
 	def get_path(self, dir, ext="jpg", absolute=False): return f"{os.getcwd() if absolute == True else '.'}\\output\\{self.dataset}\\{dir}\\{"{:05d}".format(self.img_index)}.{ext}"
@@ -173,6 +173,7 @@ class IPCDetection():
 			num_illegal += 1
 
 		# If there are no cars parked illegally, return
+		self.potential_ipcs_hist.append(num_illegal)
 		if num_illegal == 0: return
 
 		# Draw the bounding boxes of the illegal cars on the image
@@ -192,7 +193,7 @@ class IPCDetection():
 				f.write(json.dumps(self.ipc_data, indent=4))
 		except: pass
 
-	# Calculate the haversine distance between two points in kilometers
+	# Calculate the haversine distance between two points in meters
 	def calculate_haversine(self, a, b):
 		lat1, lon1, _, _ = a
 		lat2, lon2, _, _ = b
@@ -233,9 +234,18 @@ class IPCDetection():
 		# Return the similarity score
 		return num_matches * correlation / hd
 
-	# Find clusters of points in the point cloud based on image similarity and distance
-	def cluster_point_cloud(self):
+	# Find clusters of points in the point cloud based on image similarity and distance and analyze them
+	def analyze_point_cloud(self):
 		if len(self.point_cloud) == 0: return
+
+		# Create histograms of the number of potential IPCs in each frame
+		colors = [plt.cm.Spectral(each) for each in np.linspace(0, 1, len(self.potential_ipcs_hist))]
+		plt.bar(range(len(self.potential_ipcs_hist)), self.potential_ipcs_hist, color=colors)
+		plt.title("Number of Potential IPCs in Each Frame")
+		plt.ylabel("Number of Potential IPCs")
+		plt.xlabel("Frame Number")
+		plt.savefig(f".\\output\\{self.dataset}\\point-cloud-histogram\\potential_ipcs.png")
+		plt.clf()
 
 		# Define the metric for the DBSCAN algorithm
 		def metric(a, b):
@@ -305,9 +315,8 @@ class IPCDetection():
 
 		# Save the clustered point cloud to a file
 		plt.title(f"Estimated Number of IPCs: {n_clusters_}, Estimated number of noise points: {n_noise_}")
-		plt.savefig(self.get_path("clustered-point-cloud", "png"))
-		# plt.show()
-		
+		plt.savefig(f".\\output\\{self.dataset}\\clustered-point-cloud\\point_cloud.png")
+
 		# Calculate the amount of time each car has been parked illegally in seconds and only tag the cars that have been parked illegally for too long
 		for ipc_points in ipc_cluster_points:
 			min_time = min([int(ipc["time"]) for ipc in ipc_points])
@@ -316,10 +325,22 @@ class IPCDetection():
 
 			if parking_time < self.MAX_ILLEGAL_PARKING_TIME: continue
 
-			# Display the image of the car that has been parked illegally for too long
-			cv.imshow(f"Parking Time: {parking_time} seconds", cv.imread(ipc_points[0]["img"]))
-			cv.waitKey(0)
+			# Save the IPC to a file
+			lat = np.mean([ipc["lat"] for ipc in ipc_points])
+			lon = np.mean([ipc["lon"] for ipc in ipc_points])
+			ipc_img = cv.imread(ipc_points[0]["img"])
+			cv.imwrite(f".\\output\\{self.dataset}\\tagged-ipc\\{lat}_{lon}.jpg", ipc_img)
 
-	# Analyze each cluster and calculate how much time each car has been parked illegally
-	def analyze_clusters(self):
-		pass
+			# Tag the IPC for investigation
+			self.tagged_ipcs.append({
+				**ipc_points[0],
+				"parking_time": parking_time,
+				"num_detections": len(ipc_points),
+			})
+
+		# Update the number of IPCs and save the tagged IPCs to a JSON file
+		self.num_ipcs = len(self.tagged_ipcs)
+		try:
+			with open(f".\\output\\{self.dataset}\\tagged-ipc-json\\tagged-ipcs.json", 'w') as f:
+				f.write(json.dumps(self.tagged_ipcs, indent=4))
+		except: pass

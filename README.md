@@ -1,41 +1,58 @@
-# Introduction
+<h1 align="center">Illegal Parking Detection</h2>
+<p>
+	<div align="center"><img width="600" src="docs/imgs/clustered_point_cloud.png" alt="Color-Coded Point Cloud"></div>
+	<div align="center"><i>Sample clustered output showing approximate coordinates of illegally parked cars</i></div>
+</p>
+<p></p>
+
 This project aims to develop a system for detecting illegal parking using drones. Drones will be sent out by the relevant authorities on missions, where they will follow a designated route and take pictures of the street below to catch any illegally parked cars (IPCs). The system will then utilize computer vision techniques to process these images and identify vehicles parked in prohibited areas and send alerts to the authorities.
 
-> **Note:** This project is developed as part of the course project for MECH420 - Introduction to Drones at Qatar University. Although we were not fully qualified or experienced enough for it, we managed to produce results that we are proud of Alhamdulillah, and learnt a lot in the process.
+> [!NOTE]
+> This project is developed as part of the course project for MECH420 - Introduction to Drones at Qatar University. Although we were not fully qualified or experienced enough for it, we managed to produce results that we are proud of Alhamdulillah, and learnt a lot in the process.
 
 ## Table of Contents
 - [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Getting Started](#getting-started)
-  - [Training the Model](#training-the-model)
-  - [Output Directories](#output-directories)
+	- [Prerequisites](#prerequisites)
+	- [Setting Up the Project](#setting-up-the-project)
+	- [Training the Model](#training-the-model)
+	- [Output Directories](#output-directories)
 - [Processing Pipeline](#processing-pipeline)
 - [Data Collection](#data-collection)
 - [How did we do it?](#how-did-we-do-it)
-  - [1. Motion Detection](#1-motion-detection)
-	- [1.1. Perspective Warping](#11-perspective-warping)
-	- [1.2. Optical Flow](#12-optical-flow)
-  - [2. Parking Spot Detection](#2-parking-spot-detection)
-  - [3. Car Detection](#3-car-detection)
-	- [3.1. Model Training](#31-model-training)
-	- [3.2. Model Performance](#32-model-performance)
-	- [3.3. Model Integration](#33-model-integration)
-  - [4. Finding Illegally Parked Cars](#4-finding-illegally-parked-cars)
+	- [1. Motion Detection](#1-motion-detection)
+		- [1.1. Perspective Warping](#11-perspective-warping)
+		- [1.2. Optical Flow](#12-optical-flow)
+	- [2. Parking Spot Detection](#2-parking-spot-detection)
+	- [3. Car Detection](#3-car-detection)
+		- [3.1. Model Training](#31-model-training)
+		- [3.2. Model Performance](#32-model-performance)
+		- [3.3. Model Integration](#33-model-integration)
+	- [4. Finding Illegally Parked Cars](#4-finding-illegally-parked-cars)
+		- [4.1. Combining the Information](#41-combining-the-information)
+		- [4.2. The Point Cloud](#42-the-point-cloud)
+- [Conclusion](#conclusion)
 - [Future Work](#future-work)
-- [References / Resources](#references--resources)
+- [Getting Started](#getting-started)
+	- [Prerequisites](#prerequisites)
+	- [Setting Up the Project](#setting-up-the-project)
+	- [Training the Model](#training-the-model)
 
 # Getting Started
 
 ## Prerequisites
+
+Please ensure you have the following, and that any required programs or software have been properly setup.
+
 - Python 3.6 or higher
 - Drone images (our procedure can be found in the [Data Collection](#data-collection) section)
 - [ExifTool](https://exiftool.org/) (extract to folder and add to PATH environment variable)
 - [Darknet](https://github.com/hank-ai/darknet)
 - [DarkHelp](https://github.com/stephanecharette/DarkHelp)
 
-## Getting Started
+## Setting Up the Project
 
-> Note: The parameters used in the code are specific to our dataset and may need to be adjusted for different datasets.
+> [!IMPORTANT]
+> The parameters used in the code are specific to our dataset and may need to be adjusted for different datasets.
 
 1. Clone this repository: `git clone https://github.com/MFauzanAP/Illegal-Parking-Detection.git`
 2. Install the required dependencies: `pip install -r requirements.txt`
@@ -50,6 +67,9 @@ This project aims to develop a system for detecting illegal parking using drones
 4. Build and install [DarkHelp](https://github.com/stephanecharette/DarkHelp?tab=readme-ov-file#building-darkhelp-windows)
 
 ## Output Directories
+
+> [!NOTE]
+> The program will always generate a pdf report summarizing the entire mission. This is stored in the `output` directory.
 
 The following list shows the available output directories and their descriptions. A sample output is provided in the `output` directory.
 
@@ -97,7 +117,8 @@ Additional information on future work can be found in the [Future Work](#future-
 
 # How did we do it?
 
-> **Note:** Our team consists of four mechanical engineering students and one electrical engineering student. We had no prior experience in computer vision or machine learning, so we had trouble figuring out what was possible and what was not. We had to learn everything from scratch, which was a challenging but rewarding experience.
+> [!NOTE]
+> Our team consists of four mechanical engineering students and one electrical engineering student. We had no prior experience in computer vision or machine learning, so we had trouble figuring out what was possible and what was not. We had to learn everything from scratch, which was a challenging but rewarding experience.
 
 When brainstorming ideas for detecting IPCs, one of the first risks we tried to plan for was moving cars being flagged as an IPC. we initially came up with two ideas to combat this:
 
@@ -317,6 +338,9 @@ The final step is to loop through each of the identified clusters and make sure 
 Now, we have successfully detected IPCs from the drone mission.
 
 # Conclusion
+
+> [!TIP]
+> Running the program will generate a pdf report summarizing the entire mission. This is stored in the `output` directory. This file contains a list of all the tagged IPCs, their approximate coordinates, how long they were parked for, as well as a google maps link for easier tracking. We've also included other information about the mission and processing in this report.
 
 To conclude, we have successfully detected illegal parking by deploying a drone on a scanning and capturing mission. From these captured images, we identified the cars found in each frame and filtered out those that are moving and those that are parked legally, leaving only (potentially) illegally parked cars. Finally, a report is generated containing snippets of all the potential IPCs, their approximate coordinates, how long they were parked for, as well as a google maps link for easier tracking. We've also included other information about the mission and processing in this report. In practical applications, this report would be sent to the authorities for further action. Either a dispatch would be sent to the location to verify the IPCs, or a second drone mission would be deployed to verify the IPCs.
 

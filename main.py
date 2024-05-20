@@ -8,9 +8,9 @@ from lib.car_detection import CarDetection
 from lib.geojson_plotter import GeoJsonPlotter
 from lib.motion_detection import MotionDetection
 from lib.ipc_detection import IPCDetection
+from lib.report_generator import ReportGenerator
 
 # TODO:
-# - If the cars have been parked there for more than a certain amount of time, flag them as illegally parked and save the data
 # - Tweak flow detection to better detect cars even with small motion
 # - Improve car detection model by training it on more data or data with only cars (to reduce false positives)
 # - Analyze images in parallel
@@ -20,6 +20,8 @@ RESIZED_WIDTH = 1000
 
 # Output directories, comment out the ones that you don't need, check readme.md for more information
 OUTPUT_DIRS = [
+	'camera',
+	'mission-path',
 	'grid-resized',			# Required for car detection
 	'cars',
 	'cars-json',
@@ -29,12 +31,14 @@ OUTPUT_DIRS = [
 	'flow-only',
 	'flow-bbox',
 	'flow-bbox-only',
-	'camera',
 	'parking',
 	'parking-bbox-only',
 	'ipc',
 	'ipc-only',
+	'tagged-ipc',
+	'tagged-ipc-json',
 	'point-cloud',
+	'point-cloud-histogram',
 	'clustered-point-cloud',
 	'combined-flow',
 	'combined-ipc',
@@ -54,13 +58,18 @@ def main():
 	args = parser.parse_args()
 
 	# Delete the old output directories
-	for dir in os.listdir(f'.\\output\\{args.dataset}'):
-		if os.path.exists(f'.\\output\\{args.dataset}\\{dir}'):
-			for file in os.listdir(f'.\\output\\{args.dataset}\\{dir}'):
-				os.remove(f'.\\output\\{args.dataset}\\{dir}\\{file}')
-			os.rmdir(f'.\\output\\{args.dataset}\\{dir}')
+	if os.path.exists(f'.\\output\\{args.dataset}'):
+		for dir in os.listdir(f'.\\output\\{args.dataset}'):
+			if os.path.exists(f'.\\output\\{args.dataset}\\{dir}'):
+				if os.path.isdir(f'.\\output\\{args.dataset}\\{dir}'):
+					for file in os.listdir(f'.\\output\\{args.dataset}\\{dir}'):
+						os.remove(f'.\\output\\{args.dataset}\\{dir}\\{file}')
+					os.rmdir(f'.\\output\\{args.dataset}\\{dir}')
+				else:
+					os.remove(f'.\\output\\{args.dataset}\\{dir}')
 
 	# Create output directories
+	if not os.path.exists(f'.\\output\\{args.dataset}'): os.makedirs(f'.\\output\\{args.dataset}')
 	for dir in OUTPUT_DIRS:
 		if not os.path.exists(f'.\\output\\{args.dataset}\\{dir}'): os.makedirs(f'.\\output\\{args.dataset}\\{dir}')
 
@@ -69,6 +78,7 @@ def main():
 	motion_detection = MotionDetection(dataset=args.dataset, img_width=RESIZED_WIDTH)
 	geojson_plotter = GeoJsonPlotter(dataset=args.dataset, img_width=RESIZED_WIDTH)
 	ipc_detection = IPCDetection(dataset=args.dataset, img_width=RESIZED_WIDTH, car_detection=car_detection, motion_detection=motion_detection, geojson_plotter=geojson_plotter)
+	report_generator = ReportGenerator(dataset=args.dataset, img_width=RESIZED_WIDTH, car_detection=car_detection, motion_detection=motion_detection, geojson_plotter=geojson_plotter, ipc_detection=ipc_detection)
 
 	# Get the number of images in the directory
 	cwd = os.getcwd()
@@ -99,14 +109,17 @@ def main():
 	print('All frames processed!')
 	print('Analyzing point cloud data...')
 
+	# Export camera data to a GeoJSON file
+	geojson_plotter.export_camera_plot()
+
 	# Export the point cloud data to a JSON file
 	ipc_detection.export_point_cloud()
 
-	# Cluster the point cloud data
-	ipc_detection.cluster_point_cloud()
+	# Cluster the point cloud data and analyze it to find the IPCs
+	ipc_detection.analyze_point_cloud()
 
-	# Analyze these clusters to find illegally parked cars throughout the whole mission
-	ipc_detection.analyze_clusters()
+	# Generate the final report
+	report_generator.export()
 
 	# Destroy the DarkHelp object
 	car_detection.destroy()
